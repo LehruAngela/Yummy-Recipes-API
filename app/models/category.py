@@ -1,24 +1,22 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
 from app import db
 
-class RecipeApp(db.Model):
+class Category(db.Model):
     """This class represents the recipeApp table."""
 
-    __tablename__ = 'auth'
+    __tablename__ = 'category'
 
-    email = db.Column(db.String(255), primary_key=True)
-    username = db.Column(db.String(255))
-    password = db.Column(db.String(255))
+    category_name = db.Column(db.String(255), primary_key=True)
+    recipe_name = db.Column(db.String(255))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
 
-    def __init__(self, email, username, password):
+    def __init__(self, category_name, recipe_name):
         """initialize"""
-        self.email = email
-        self.username = username
-        self.password = password
+        self.category_name = category_name
+        self.recipe_name = recipe_name
 
     def save(self):
         db.session.add(self)
@@ -26,11 +24,11 @@ class RecipeApp(db.Model):
 
     @staticmethod
     def get_all():
-        return RecipeApp.query.all()
+        return Category.query.all()
 
     def delete(self):
         db.session.delete(self)
         db.session.commit()
 
     def __repr__(self):
-        return "<RecipeApp: {}>".format(self.name)
+        return "<Category: {}>".format(self.name)
