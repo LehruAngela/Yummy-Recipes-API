@@ -13,7 +13,7 @@ class Category(db.Model):
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
 
-    def __init__(self, category_name, recipe_name):
+    def __init__(self, category_name, recipe_name=None):
         """initialize"""
         self.category_name = category_name
         self.recipe_name = recipe_name
