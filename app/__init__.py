@@ -37,7 +37,8 @@ def create_app(config_name):
                     'category_id': category.category_id,
                     'category_name': category.category_name,
                     'date_created': category.date_created,
-                    'date_modified': category.date_modified
+                    'date_modified': category.date_modified,
+                    'recipes': url_for('recipes', category_id=category.category_id, _external=True)
                 })
                 response.status_code = 201
                 return response
@@ -84,7 +85,8 @@ def create_app(config_name):
                 'category_id': category.category_id,
                 'category_name': category.category_name,
                 'date_created': category.date_created,
-                'date_modified': category.date_modified
+                'date_modified': category.date_modified,
+                'recipes': url_for('recipes', category_id=category.category_id, _external=True)
             })
             response.status_code = 200
             return response
@@ -94,7 +96,8 @@ def create_app(config_name):
                 'category_id': category.category_id,
                 'category_name': category.category_name,
                 'date_created': category.date_created,
-                'date_modified': category.date_modified
+                'date_modified': category.date_modified,
+                'recipes': url_for('recipes', category_id=category.category_id, _external=True)
             })
             response.status_code = 200
             return response
@@ -103,12 +106,17 @@ def create_app(config_name):
     def recipes(category_id, **kwargs):
         if request.method == "POST":
             recipe_name = str(request.data.get('recipe_name', ''))
+            ingredients = str(request.data.get('ingredients', ''))
+            directions = str(request.data.get('directions', ''))
+
             if recipe_name:
                 recipe = Recipe(recipe_name=recipe_name)
                 recipe.save()
                 response = jsonify({
                     'recipe_id': recipe.recipe_id,
                     'recipe_name': recipe.recipe_name,
+                    'ingredients': recipe.ingredients,
+                    'directions': recipe.directions,
                     'date_created': recipe.date_created,
                     'date_modified': recipe.date_modified
                 })
@@ -116,13 +124,15 @@ def create_app(config_name):
                 return response
         else:
             # GET
-            recipes = Recipe.get_all()#query.filter_by(category_id=category_id).all()
+            recipes = Recipe.query.filter_by(category_id=category_id).all()
             results = []
 
             for recipe in recipes:
                 obj = {
                     'recipe_id': recipe.recipe_id,
                     'recipe_name': recipe.recipe_name,
+                    'ingredients': recipe.ingredients,
+                    'directions': recipe.directions,
                     'date_created': recipe.date_created,
                     'date_modified': recipe.date_modified
                 }
@@ -149,11 +159,19 @@ def create_app(config_name):
 
         elif request.method == 'PUT':
             recipe_name = str(request.data.get('recipe_name', ''))
+            ingredients = str(request.data.get('ingredients', ''))
+            directions = str(request.data.get('directions', ''))
+
             recipe.recipe_name = recipe_name
+            recipe.ingredients = ingredients
+            recipe.directions = directions
+
             recipe.save()
             response = jsonify({
                 'recipe_id': recipe.recipe_id,
                 'recipe_name': recipe.recipe_name,
+                'ingredients': recipe.ingredients,
+                'directions': recipe.directions,
                 'date_created': recipe.date_created,
                 'date_modified': recipe.date_modified
             })
@@ -163,7 +181,9 @@ def create_app(config_name):
             # GET
             response = jsonify({
                 'recipe_id': recipe.recipe_id,
-                'category_name': recipe.recipe_name,
+                'recipe_name': recipe.recipe_name,
+                'ingredients': recipe.ingredients,
+                'directions': recipe.directions,
                 'date_created': recipe.date_created,
                 'date_modified': recipe.date_modified
             })
