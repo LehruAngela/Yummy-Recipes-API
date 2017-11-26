@@ -1,12 +1,15 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
 from app import db
+from category import Category
 
 class Recipe(db.Model):
     """This class represents the recipeApp table."""
 
     __tablename__ = 'recipe'
 
-    recipe_name = db.Column(db.String(255), primary_key=True)
+    recipe_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    category_id = db.Column(db.Integer, ForeignKey(Category.category_id))
+    recipe_name = db.Column(db.String(255))
     ingredients = db.Column(db.String(255))
     directions = db.Column(db.String(255))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -14,7 +17,7 @@ class Recipe(db.Model):
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
 
-    def __init__(self, recipe_name, ingredients, directions):
+    def __init__(self, recipe_name, ingredients=None, directions=None):
         self.recipe_name = recipe_name
         self.ingredients = ingredients
         self.directions = directions
