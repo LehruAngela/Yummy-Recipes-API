@@ -6,17 +6,20 @@ class Category(db.Model):
 
     __tablename__ = 'category'
 
-    category_name = db.Column(db.String(255), primary_key=True)
+    category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    category_name = db.Column(db.String(255))
     recipe_name = db.Column(db.String(255))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
 
-    def __init__(self, category_name, recipe_name=None):
+    def __init__(self, category_name, category_id=None, recipe_name=None):
         """initialize"""
         self.category_name = category_name
+        self.category_id = category_id
         self.recipe_name = recipe_name
+
 
     def save(self):
         db.session.add(self)
