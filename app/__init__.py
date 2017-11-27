@@ -63,6 +63,7 @@ def create_app(config_name):
 
     @app.route('/categories/<int:category_id>', methods=['GET', 'PUT', 'DELETE'])
     def category_edit_and_delete(category_id, **kwargs):
+     # retrieve a buckelist using it's ID
         category = Category.query.filter_by(category_id=category_id).first()
         if not category:
             # Raise an HTTPException with a 404 not found status code
@@ -142,6 +143,7 @@ def create_app(config_name):
 
     @app.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
     def recipe_edit_and_delete(category_id, recipe_id, **kwargs):
+     # retrieve a buckelist using it's ID
         recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
         if not recipe:
             # Raise an HTTPException with a 404 not found status code
@@ -187,5 +189,9 @@ def create_app(config_name):
             })
             response.status_code = 200
             return response
+
+    # import the authentication blueprint and register it on the app
+    from .auth import auth_blueprint
+    app.register_blueprint(auth_blueprint)
 
     return app
