@@ -1,8 +1,8 @@
 from . import auth_blueprint
 
 from flask.views import MethodView
-from flask import, Blueprint, make_response, request, jsonify
-from app.models import RecipeApp
+from flask import Blueprint, make_response, request, jsonify
+from app.models.recipeAuth import RecipeApp
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
@@ -11,7 +11,7 @@ class RegistrationView(MethodView):
         """Handle POST request for this view. Url ---> /auth/register"""
 
         # Query to see if the user already exists
-        user = User.query.filter_by(email=request.data['email']).first()
+        user = RecipeApp.query.filter_by(email=request.data['email']).first()
 
         if not user:
             # There is no user so we'll try to register them
@@ -59,7 +59,7 @@ class LoginView(MethodView):
         """Handle POST request for this view. Url ---> /auth/login"""
         try:
             # Get the user object using their email (unique to every user)
-            user = User.query.filter_by(email=request.data['email']).first()
+            user = RecipeApp.query.filter_by(email=request.data['email']).first()
 
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(request.data['password']):
