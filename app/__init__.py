@@ -1,4 +1,4 @@
-from flask import request, jsonify, abort, url_for
+from flask import request, jsonify, abort, url_for, make_response
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 
@@ -17,6 +17,7 @@ db = SQLAlchemy()
 def create_app(config_name):
     from app.models.category import Category
     from app.models.recipe import Recipe
+    from app.models.recipeAuth import RecipeApp
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config['development']) # app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
@@ -28,37 +29,60 @@ def create_app(config_name):
 
     @app.route('/categories', methods=['POST', 'GET'])
     def categories():
-        if request.method == "POST":
-            category_name = str(request.data.get('category_name', ''))
-            if category_name:
-                category = Category(category_name=category_name)
-                category.save()
-                response = jsonify({
-                    'category_id': category.category_id,
-                    'category_name': category.category_name,
-                    'date_created': category.date_created,
-                    'date_modified': category.date_modified,
-                    'recipes': url_for('recipes', category_id=category.category_id, _external=True)
-                })
-                response.status_code = 201
-                return response
-        else:
-            # GET
-            categories = Category.get_all()
-            results = []
+        # Get the access token from the header
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
 
-            for category in categories:
-                obj = {
-                    'category_id': category.category_id,
-                    'category_name': category.category_name,
-                    'date_created': category.date_created,
-                    'date_modified': category.date_modified,
-                    'recipes': url_for('recipes', category_id=category.category_id, _external=True)
+        if access_token:
+        # Attempt to decode the token and get the User ID
+            user_id = RecipeApp.decode_token(access_token)
+            if not isinstance(user_id, str):
+                # Go ahead and handle the request, the user is authenticated
+
+                if request.method == "POST":
+                    category_name = str(request.data.get('category_name', ''))
+                    if category_name:
+                        category = Category(category_name=category_name, user_id=user_id)
+                        category.save()
+                        response = jsonify({
+                            'category_id': category.category_id,
+                            'category_name': category.category_name,
+                            'date_created': category.date_created,
+                            'date_modified': category.date_modified,
+                            'recipes': url_for('recipes', category_id=category.category_id, _external=True),
+                            'created_by' : user_id
+                        })
+
+                        return make_response(response), 201
+                else:
+                    #GET all the categories created by this user
+                    categories = Category.query.filter_by(user_id=user_id)
+                    results = []
+
+                    for category in categories:
+                        obj = {
+                            'category_id': category.category_id,
+                            'category_name': category.category_name,
+                            'date_created': category.date_created,
+                            'date_modified': category.date_modified,
+                            'recipes': url_for('recipes', category_id=category.category_id, _external=True),
+                            'created_by' : user_id
+                        }
+                        results.append(obj)
+
+                    """response = jsonify(results)
+                    response.status_code = 200
+                    return response"""
+
+                    return make_response(jsonify(results)), 200
+
+            else:
+                # user is not legit, so the payload is an error message
+                message = user_id
+                response = {
+                    'message': message
                 }
-                results.append(obj)
-            response = jsonify(results)
-            response.status_code = 200
-            return response
+                return make_response(jsonify(response)), 401
 
 
     @app.route('/categories/<int:category_id>', methods=['GET', 'PUT', 'DELETE'])
