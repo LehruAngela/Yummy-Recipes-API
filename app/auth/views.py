@@ -16,11 +16,10 @@ class RegistrationView(MethodView):
         if not user:
             # There is no user so we'll try to register them
             try:
-                post_data = request.data
                 # Register the user
-                email = post_data['email']
-                password = post_data['password']
-                user = User(email=email, password=password)
+                email = request.data['email']
+                password =  request.data['password']
+                user = RecipeApp(email=email, password=password)
                 user.save()
 
                 response = {
@@ -64,7 +63,7 @@ class LoginView(MethodView):
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(request.data['password']):
                 # Generate the access token. This will be used as the authorization header
-                access_token = user.generate_token(user.id)
+                access_token = user.generate_token(user.user_id)
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
