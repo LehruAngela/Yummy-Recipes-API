@@ -3,7 +3,6 @@ from flask import Blueprint, make_response, request, jsonify
 from app.models.recipe import Recipe
 from app.models.recipeAuth import RecipeApp
 
-
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST', 'GET'])
 def recipes(category_id, **kwargs):
     # retrieves/adds recipes from/to the database
@@ -16,45 +15,50 @@ def recipes(category_id, **kwargs):
         user_id = RecipeApp.decode_token(access_token)
         if not isinstance(user_id, str):
             # Handle the request if the user is authenticated
-            category_id = Category.decode_token(access_token)
             if request.method == "POST":
                 recipe_name = str(request.data.get('recipe_name', ''))
                 ingredients = str(request.data.get('ingredients', ''))
                 directions = str(request.data.get('directions', ''))
 
                 if recipe_name:
-                    recipe = Recipe(recipe_name=recipe_name)
+                    recipe = Recipe(recipe_name=recipe_name, user_id=user_id, category_id=category_id)
                     recipe.save()
                     response = jsonify({
-                        'category_id': recipe.recipe_id,
                         'recipe_id': recipe.recipe_id,
                         'recipe_name': recipe.recipe_name,
                         'ingredients': recipe.ingredients,
                         'directions': recipe.directions,
                         'date_created': recipe.date_created,
-                        'date_modified': recipe.date_modified
-                        'created_by' : user_id
+                        'date_modified': recipe.date_modified,
+                        'created_by' : user_id,
+                        'category_id': recipe.category_id,
                     })
                     response.status_code = 201
                     return response
             else:
-            # GET
-                recipes = Recipe.query.filter_by(category_id=category_id).all()
+            # GET all the recipes under this category
+                recipes = Recipe.query.filter_by(category_id=category_id)
                 results = []
+                if recipes:
+                    for recipe in recipes:
+                        obj = {
+                            'recipe_id': recipe.recipe_id,
+                            'recipe_name': recipe.recipe_name,
+                            'ingredients': recipe.ingredients,
+                            'directions': recipe.directions,
+                            'date_created': recipe.date_created,
+                            'date_modified': recipe.date_modified,
+                            'created_by' : user_id,
+                            'category_id': recipe.category_id,
+                            }
+                        results.append(obj)
+                    response = jsonify(results)
+                    response.status_code = 200
+                    return response
+                return {
+                        "message": "There are no recipes in this category or Category doesn't exist"
+                        }, 404
 
-                for recipe in recipes:
-                    obj = {
-                        'recipe_id': recipe.recipe_id,
-                        'recipe_name': recipe.recipe_name,
-                        'ingredients': recipe.ingredients,
-                        'directions': recipe.directions,
-                        'date_created': recipe.date_created,
-                        'date_modified': recipe.date_modified
-                    }
-                    results.append(obj)
-                response = jsonify(results)
-                response.status_code = 200
-                return response
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
 def recipe_edit_and_delete(category_id, recipe_id, **kwargs):
@@ -88,7 +92,9 @@ def recipe_edit_and_delete(category_id, recipe_id, **kwargs):
             'ingredients': recipe.ingredients,
             'directions': recipe.directions,
             'date_created': recipe.date_created,
-            'date_modified': recipe.date_modified
+            'date_modified': recipe.date_modified,
+            'created_by' : user_id,
+            'category_id': recipe.category_id,
             })
         response.status_code = 200
         return response
