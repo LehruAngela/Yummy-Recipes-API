@@ -7,7 +7,7 @@ This is a Flask API of the Yummy-Recipes that handles:
 2. Creating, reading, updating and deleting of recipe categories
 3. Creating, reading, updating and deleting of recipes
 
-###### To test the application and get it running, do the following:
+#### To test the application and get it running, do the following:
 1. Create the virtual environment and activate it
  ```
  $ mkvirtualenv my_project
@@ -31,7 +31,7 @@ $ python manage.py db upgrade
 $ python run.py
 ```
 
-###### Features
+#### Features
 Endpoint | Functionality
 ------------ | -------------
 POST api-v1/auth/register | Registers a new user
