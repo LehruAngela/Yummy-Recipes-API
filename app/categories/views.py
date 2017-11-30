@@ -54,7 +54,7 @@ def create_and_view_categories():
 
 @category_api.route('/categories/<int:category_id>', methods=['GET', 'PUT', 'DELETE'])
 def category_edit_and_delete(category_id, **kwargs):
-    # retrieve a buckelist using it's ID
+    # retrieve a category using it's ID
     category = Category.query.filter_by(category_id=category_id).first()
     if not category:
         # Raise an HTTPException with a 404 not found status code
