@@ -62,7 +62,7 @@ def recipes(category_id, **kwargs):
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
 def recipe_edit_and_delete(category_id, recipe_id, **kwargs):
-    # retrieve a buckelist using it's ID
+    # retrieve a recipe using it's ID
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:
         # Raise an HTTPException with a 404 not found status code
