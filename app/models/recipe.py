@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
 from app import db
-from category import Category
+from .category import Category
 
 class Recipe(db.Model):
     """This class represents the recipeApp table."""

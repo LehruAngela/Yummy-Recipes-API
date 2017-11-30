@@ -1,18 +1,19 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
-#from flask_bcrypt import Bcrypt
+from flask_bcrypt import Bcrypt
 from app import db
+from instance.config import Config
 import jwt
 from datetime import datetime, timedelta
 
+config = Config()
 
 class RecipeApp(db.Model):
     """This class represents the recipeApp table."""
 
     __tablename__ = 'auth'
 
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(256), nullable=False, unique=True)
-    username = db.Column(db.String(256), nullable=False)
     password = db.Column(db.String(256), nullable=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
@@ -21,14 +22,13 @@ class RecipeApp(db.Model):
     categories = db.relationship(
         'Category', order_by='Category.category_id', cascade="all, delete-orphan")
 
-    def __init__(self, email, username, password):
+    def __init__(self, email, password):
         """initialize"""
         self.email = email
-        self.username = username
-        self.password = password #Bcrypt().generate_password_hash(password).decode()
+        self.password = Bcrypt().generate_password_hash(password).decode()
 
-    #def password_is_valid(self, password):
-        #return Bcrypt().check_password_hash(self.password, password)
+    def password_is_valid(self, password):
+        return Bcrypt().check_password_hash(self.password, password)
 
     def save(self):
         db.session.add(self)
@@ -45,14 +45,14 @@ class RecipeApp(db.Model):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'exp': datetime.utcnow() + timedelta(minutes=1200),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
             # create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(
                 payload,
-                current_app.config.get('SECRET'),
+                config.SECRET,
                 algorithm='HS256'
             )
             return jwt_string
@@ -66,7 +66,7 @@ class RecipeApp(db.Model):
         """Decodes the access token from the Authorization header."""
         try:
             # try to decode the token using our SECRET variable
-            payload = jwt.decode(token, current_app.config.get('SECRET'))
+            payload = jwt.decode(token, config.SECRET)
             return payload['sub']
         except jwt.ExpiredSignatureError:
             # the token is expired, return an error string
