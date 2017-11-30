@@ -41,8 +41,8 @@ GET api-v1/categories/ | Retrieves all created categories by that user
 GET api-v1/categories/category_id | Retrieves a single category using it's ID
 PUT api-v1/categories/category_id | Updates a category of a specified ID
 DELETE api-v1/categories/category_id | Deletes a category of a specified ID
-POST api-v1/categories/category_id/recipes/ | Creates a new recipe in a category of a specified ID
-GET api-v1/categories/category_id/recipes/ | Retrieves all created recipes under a category of a specified ID
+POST api-v1/categories/category_id/recipes/ | Creates a new recipe in a category 
+GET api-v1/categories/category_id/recipes/ | Retrieves all created recipes in a category
 GET api-v1/categories/category_id/recipes/recipe_id | Retrieves a single recipe using it's ID
 PUT api-v1/categories/category_id/recipes/recipe_id | Updates a recipe in a category
 DELETE api-v1/category/category_id/recipes/recipe_id | Deletes a recipe in a category
