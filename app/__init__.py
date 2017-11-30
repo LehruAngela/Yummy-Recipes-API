@@ -1,17 +1,9 @@
-from flask import request, jsonify, abort, url_for, make_response
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 
 # local import
 from instance.config import app_config
 
-
-"""POSTGRESTEST = {
-'user': 'postgres',
-'db': 'recipe_db',
-'host': 'localhost',
-'port': '5432',
-}"""
 # initialize sql-alchemy
 db = SQLAlchemy()
 
@@ -39,7 +31,5 @@ def create_app(config_name):
     # import the recipe blueprint and register it on the app
     from .recipes import recipe_api
     app.register_blueprint(recipe_api)
-
-
 
     return app

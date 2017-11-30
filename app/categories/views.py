@@ -3,6 +3,8 @@ from flask import Blueprint, make_response, request, jsonify, url_for
 from app.models.category import Category
 from app.models.recipe import Recipe
 from app.models.recipeAuth import RecipeApp
+from app.recipes.views import recipe_api
+
 
 @category_api.route('/categories/', methods=['GET','POST'])
 def create_and_view_categories():
@@ -26,7 +28,7 @@ def create_and_view_categories():
                         'category_name': category.category_name,
                         'date_created': category.date_created,
                         'date_modified': category.date_modified,
-                        'recipes': url_for('recipes', category_id=category.category_id, _external=True),
+                        'recipes': url_for('recipe_api.recipes', category_id=category.category_id, _external=True),
                         'created_by' : user_id
                         })
                     return make_response(response), 201
@@ -42,7 +44,7 @@ def create_and_view_categories():
                         'category_name': category.category_name,
                         'date_created': category.date_created,
                         'date_modified': category.date_modified,
-                        'recipes': url_for('recipes', category_id=category.category_id, _external=True),
+                        'recipes': url_for('recipe_api.recipes', category_id=category.category_id, _external=True),
                         'created_by' : user_id
                     }
                     results.append(obj)
@@ -77,7 +79,7 @@ def category_edit_and_delete(category_id, **kwargs):
             'category_name': category.category_name,
             'date_created': category.date_created,
             'date_modified': category.date_modified,
-            'recipes': url_for('recipes', category_id=category.category_id, _external=True)
+            'recipes': url_for('recipe_api.recipes', category_id=category.category_id, _external=True)
         })
         response.status_code = 200
         return response
@@ -88,7 +90,7 @@ def category_edit_and_delete(category_id, **kwargs):
             'category_name': category.category_name,
             'date_created': category.date_created,
             'date_modified': category.date_modified,
-            'recipes': url_for('recipes', category_id=category.category_id, _external=True)
+            'recipes': url_for('recipe_api.recipes', category_id=category.category_id, _external=True)
         })
         response.status_code = 200
         return response

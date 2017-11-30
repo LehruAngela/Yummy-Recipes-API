@@ -4,7 +4,7 @@ from app.models.recipe import Recipe
 from app.models.recipeAuth import RecipeApp
 
 
-@recipe_api.route('/categories/<int:category_id>/recipes', methods=['POST', 'GET'])
+@recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST', 'GET'])
 def recipes(category_id, **kwargs):
     # retrieves/adds recipes from/to the database
     # Get the access token from the header
@@ -16,6 +16,7 @@ def recipes(category_id, **kwargs):
         user_id = RecipeApp.decode_token(access_token)
         if not isinstance(user_id, str):
             # Handle the request if the user is authenticated
+            category_id = Category.decode_token(access_token)
             if request.method == "POST":
                 recipe_name = str(request.data.get('recipe_name', ''))
                 ingredients = str(request.data.get('ingredients', ''))
@@ -25,12 +26,14 @@ def recipes(category_id, **kwargs):
                     recipe = Recipe(recipe_name=recipe_name)
                     recipe.save()
                     response = jsonify({
+                        'category_id': recipe.recipe_id,
                         'recipe_id': recipe.recipe_id,
                         'recipe_name': recipe.recipe_name,
                         'ingredients': recipe.ingredients,
                         'directions': recipe.directions,
                         'date_created': recipe.date_created,
                         'date_modified': recipe.date_modified
+                        'created_by' : user_id
                     })
                     response.status_code = 201
                     return response
