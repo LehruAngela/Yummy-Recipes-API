@@ -4,4 +4,3 @@ from flask import Blueprint
 category_api = Blueprint('category_api', __name__, url_prefix='/api-v1')
 
 from . import views
-api = Blueprint('api', __name__, url_prefix='/api-v1')
