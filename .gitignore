@@ -1,1 +1,2 @@
 /path/to/*.pyc
+__pycache__
