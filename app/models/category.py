@@ -39,4 +39,4 @@ class Category(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return "<Category: {}>".format(self.name)
+        return "<Category: {}>".format(self.category_name)

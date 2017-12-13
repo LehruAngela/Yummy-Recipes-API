@@ -18,10 +18,12 @@ class Recipe(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey(Category.category_id))
 
 
-    def __init__(self, recipe_name, ingredients=None, directions=None):
+    def __init__(self, recipe_name, category_id, user_id, ingredients=None, directions=None):
         self.recipe_name = recipe_name
         self.ingredients = ingredients
         self.directions = directions
+        self.category_id = category_id
+        self.user_id = user_id
 
     def save(self):
         db.session.add(self)

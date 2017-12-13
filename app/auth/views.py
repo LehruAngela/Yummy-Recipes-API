@@ -40,7 +40,7 @@ class RegistrationView(MethodView):
                 'message': 'User already exists. Please login.'
             }
 
-            return make_response(jsonify(response)), 202
+            return make_response(jsonify(response)), 201
 
 registration_view = RegistrationView.as_view('register_view')
 # Define the rule for the registration url --->  /auth/register
