@@ -4,7 +4,6 @@ import json
 from app import create_app, db
 from app.models.category import Category
 from app.models.recipeAuth import RecipeApp
-from .test_recipe_auth import TestRecipeApp
 
 class TestCategory(unittest.TestCase):
     def setUp(self):
@@ -97,16 +96,16 @@ class TestCategory(unittest.TestCase):
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
-        # we create a bucketlist by making a POST request
+        # we create a category by making a POST request
         rv = self.client().post(
             '/api-v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'category_name': 'Sauces'})
         self.assertEqual(rv.status_code, 201)
-        # get the json with the bucketlist
+        # get the json with the category
         results = json.loads(rv.data.decode())
 
-        # then, we edit the created bucketlist by making a PUT request
+        # then, we edit the created category by making a PUT request
         rv = self.client().put(
             '/api-v1/categories/{}'.format(results['category_id']),
             headers=dict(Authorization="Bearer " + access_token),
@@ -115,7 +114,7 @@ class TestCategory(unittest.TestCase):
             })
         self.assertEqual(rv.status_code, 200)
 
-        #  we get the edited bucketlist to see if it is actually edited.
+        #  we get the edited category to see if it is actually edited.
         results = self.client().get(
             '/api-v1/categories/{}'.format(results['category_id']),
             headers=dict(Authorization="Bearer " + access_token))
