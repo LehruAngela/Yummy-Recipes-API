@@ -52,14 +52,14 @@ class TestCategory(unittest.TestCase):
         result=self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
-        # create a bucketlist by making a POST request
+        # create a category by making a POST request
         res = self.client().post(
             '/api-v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 201)
 
-        # get all the bucketlists that belong to the test user by making a GET request
+        # get all the categories that belong to the test user by making a GET request
         res = self.client().get(
             '/api-v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
@@ -78,7 +78,7 @@ class TestCategory(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
 
-        # assert that the bucketlist is created
+        # assert that the category is created
         self.assertEqual(rv.status_code, 201)
         # get the response data in json format
         # rm -- results = json.loads(rv.data.decode())
@@ -86,7 +86,7 @@ class TestCategory(unittest.TestCase):
         result = self.client().get(
             '/api-v1/categories/{}'.format(result_in_json['category_id']),
             headers=dict(Authorization="Bearer " + access_token),)
-        # assert that the bucketlist is actually returned given its ID
+        # assert that the category is actually returned given its ID
         self.assertEqual(result.status_code, 200)
         self.assertIn('Stews', str(result.data))
 
@@ -131,10 +131,10 @@ class TestCategory(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data={'category_name': 'Sauces'})
         self.assertEqual(rv.status_code, 201)
-        # get the bucketlist in json
+        # get the category in json
         results = json.loads(rv.data.decode())
 
-        # delete the bucketlist we just created
+        # delete the category we just created
         res = self.client().delete(
             '/api-v1/categories/{}'.format(results['category_id']),)
         self.assertEqual(res.status_code, 200)
@@ -144,3 +144,42 @@ class TestCategory(unittest.TestCase):
             '/api-v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 404)
+
+    def test_view_by_q(self):
+        """Test API can retrieve categories using q"""
+        self.register_user()
+        result=self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # create a category by making a POST request
+        res = self.client().post(
+            '/api-v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(res.status_code, 201)
+
+        # get all the categories that belong to the q
+        res = self.client().get(
+            '/api-v1/categories/?q=Stews',
+            headers=dict(Authorization="Bearer " + access_token))
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Stews', str(res.data))
+
+    def test_pagination(self):
+        """Test API can retrieve categories using q"""
+        self.register_user()
+        result=self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # create a category by making a POST request
+        res = self.client().post(
+            '/api-v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(res.status_code, 201)
+
+        # get all the categories that belong to the q
+        res = self.client().get(
+            '/api-v1/categories/?page=1&per_page=5',
+            headers=dict(Authorization="Bearer " + access_token))
+        self.assertEqual(res.status_code, 200)
