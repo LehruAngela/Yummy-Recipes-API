@@ -173,3 +173,56 @@ class TestRecipe(unittest.TestCase):
             '/api-v1/categories/{}/recipes/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 404)
+
+    def test_view_by_q(self):
+        """Test API can get all recipes(GET request)."""
+        self.register_user()
+        result=self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        category_res = self.client().post(
+            '/api-v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        category_id = json.loads(category_res.data.decode('utf-8').replace("'", "\""))
+
+        # create a recipe by making a POST request
+        res = self.client().post(
+            '/api-v1/categories/{}/recipes/'.format(category_id['category_id']),
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.recipe)
+        self.assertEqual(res.status_code, 201)
+
+        # get all the recipes that belong to the test user by making a GET request
+        res = self.client().get(
+            '/api-v1/categories/{}/recipes/?q=Chicken stew'.format(category_id['category_id']),
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Chicken stew', str(res.data))
+
+    def test_pagination(self):
+        """Test API can get all recipes(GET request)."""
+        self.register_user()
+        result=self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        category_res = self.client().post(
+            '/api-v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        category_id = json.loads(category_res.data.decode('utf-8').replace("'", "\""))
+
+        # create a recipe by making a POST request
+        res = self.client().post(
+            '/api-v1/categories/{}/recipes/'.format(category_id['category_id']),
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.recipe)
+        self.assertEqual(res.status_code, 201)
+
+        # get all the recipes that belong to the test user by making a GET request
+        res = self.client().get(
+            '/api-v1/categories/{}/recipes/?page=1&per_page=5'.format(category_id['category_id']),
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(res.status_code, 200)
