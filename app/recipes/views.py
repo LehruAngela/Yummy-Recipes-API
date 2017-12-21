@@ -2,6 +2,8 @@ from . import recipe_api
 from flask import Blueprint, make_response, request, jsonify
 from app.models.recipe import Recipe
 from app.models.recipeAuth import RecipeApp
+from app.models.recipeAuth import RecipeApp
+
 
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST', 'GET'])
 def recipes(category_id, **kwargs):
@@ -36,11 +38,16 @@ def recipes(category_id, **kwargs):
                     return make_response(response), 201
 
             else:
-            # GET all the recipes under this category
-                recipes = Recipe.query.filter_by(category_id=category_id)
+                page = int(request.args.get('page', 1))
+                per_page = int(request.args.get('per_page', 5))
+                q = str(request.args.get('q', '')).title()
+
+                # GET all the recipes under this category
+                recipes = Recipe.query.filter(Recipe.user_id==user_id).filter(Recipe.category_id==category_id).filter(Recipe.recipe_name.like('%'+q+'%')).paginate(page, per_page)
+
                 results = []
                 if recipes:
-                    for recipe in recipes:
+                    for recipe in recipes.items:
                         obj = {
                             'recipe_id': recipe.recipe_id,
                             'recipe_name': recipe.recipe_name,
