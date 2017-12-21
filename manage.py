@@ -6,7 +6,7 @@ from app.models.recipeAuth import RecipeApp
 from app.models.category import Category
 from app.models.recipe import Recipe
 
-app = create_app(config_name=os.getenv('APP_SETTINGS'))
+app = create_app(config_name=os.getenv('FLASK_CONFIG'))
 migrate = Migrate(app, db)
 manager = Manager(app)
 
