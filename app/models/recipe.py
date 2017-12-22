@@ -1,6 +1,7 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
 from app import db
 from .category import Category
+from .recipeAuth import RecipeApp
 
 class Recipe(db.Model):
     """This class represents the recipeApp table."""
@@ -15,11 +16,12 @@ class Recipe(db.Model):
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
+    user_id = db.Column(db.Integer, db.ForeignKey(RecipeApp.user_id))
     category_id = db.Column(db.Integer, db.ForeignKey(Category.category_id))
 
 
     def __init__(self, recipe_name, category_id, user_id, ingredients=None, directions=None):
-        self.recipe_name = recipe_name
+        self.recipe_name = recipe_name.title()
         self.ingredients = ingredients
         self.directions = directions
         self.category_id = category_id
