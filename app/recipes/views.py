@@ -26,7 +26,7 @@ def auth(func):
 
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST', 'GET'])
 @auth
-def recipes(category_id, **kwargs):
+def recipes(user_id, category_id, **kwargs):
     # retrieves/adds recipes from/to the database
     if request.method == "POST":
         recipe_name = str(request.data.get('recipe_name', ''))
@@ -81,7 +81,7 @@ def recipes(category_id, **kwargs):
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
 @auth
-def recipe_edit_and_delete(category_id, recipe_id, **kwargs):
+def recipe_edit_and_delete(user_id, category_id, recipe_id, **kwargs):
     # retrieve a recipe using it's ID
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:

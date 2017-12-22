@@ -72,9 +72,10 @@ def create_and_view_categories(user_id):
 
 @category_api.route('/categories/<int:category_id>', methods=['GET', 'PUT', 'DELETE'])
 @auth
-def category_edit_and_delete(category_id, **kwargs):
+def category_edit_and_delete(user_id, category_id, **kwargs):
     # retrieve a category using it's ID
-    category = Category.query.filter_by(category_id=category_id).first()
+    user = RecipeApp.query.filter_by(user_id=user_id).first()
+    category = user.categories.filter_by(category_id=category_id).first()
     if not category:
         # Raise an HTTPException with a 404 not found status code
         return {
