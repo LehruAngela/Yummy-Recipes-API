@@ -20,7 +20,10 @@ class RecipeApp(db.Model):
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
     categories = db.relationship(
-        'Category', order_by='Category.category_id', cascade="all, delete-orphan")
+            'Category', order_by='Category.category_id',
+            cascade="all, delete-orphan",
+            lazy='dynamic'
+        )
 
     def __init__(self, email, password):
         """initialize"""
