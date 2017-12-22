@@ -10,7 +10,7 @@ class TestRecipe(unittest.TestCase):
         """Define test variables and initialize app"""
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
-        self.recipe = {'recipe_name': 'Chicken stew'}
+        self.recipe = {'recipe_name': 'Chicken Stew'}
         self.category = {'category_name': 'Stews'}
 
         # binds the app to the current context
@@ -49,7 +49,7 @@ class TestRecipe(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=self.recipe)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Chicken stew', str(res.data))
+        self.assertIn('Chicken Stew'.title(), str(res.data))
 
 
     def test_view_recipes(self):
@@ -77,7 +77,7 @@ class TestRecipe(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 200)
-        self.assertIn('Chicken stew', str(res.data))
+        self.assertIn('Chicken stew'.title(), str(res.data))
 
     def test_view_recipe_by_id(self):
         """Test API can get a recipe by using its id(GET request)."""
@@ -102,7 +102,7 @@ class TestRecipe(unittest.TestCase):
             '/api-v1/categories/{}/recipes/{}'.format(category_id['category_id'], (result_in_json['recipe_id'])),
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 200)
-        self.assertIn('Chicken stew', str(result.data))
+        self.assertIn('Chicken Stew'.title(), str(result.data))
 
 
     def test_edit_recipe(self):
@@ -199,7 +199,7 @@ class TestRecipe(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 200)
-        self.assertIn('Chicken stew', str(res.data))
+        self.assertIn('Chicken stew'.title(), str(res.data))
 
     def test_pagination(self):
         """Test API can get all recipes(GET request)."""
