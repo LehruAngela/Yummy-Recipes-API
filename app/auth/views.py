@@ -1,5 +1,5 @@
 from . import auth_blueprint
-
+import validate
 from flask.views import MethodView
 from flask import Blueprint, make_response, request, jsonify
 from app.models.recipeAuth import RecipeApp
@@ -19,14 +19,15 @@ class RegistrationView(MethodView):
                 # Register the user
                 email = request.data['email']
                 password =  request.data['password']
-                user = RecipeApp(email=email, password=password)
-                user.save()
+                if validate.validate_email(email) == "True" and validate.validate_password(password) == "True":
+                    user = RecipeApp(email=email, password=password)
+                    user.save()
 
-                response = {
-                    'message': 'You registered successfully. Please log in.'
-                }
-                # return a response notifying the user that they registered successfully
-                return make_response(jsonify(response)), 201
+                    response = {
+                        'message': 'You registered successfully. Please log in.'
+                    }
+                    # return a response notifying the user that they registered successfully
+                    return make_response(jsonify(response)), 201
             except Exception as e:
                 # An error occured, therefore return a string message containing the error
                 response = {
