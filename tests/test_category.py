@@ -136,7 +136,9 @@ class TestCategory(unittest.TestCase):
 
         # delete the category we just created
         res = self.client().delete(
-            '/api-v1/categories/{}'.format(results['category_id']),)
+                '/api-v1/categories/{}'.format(results['category_id']),
+                headers=dict(Authorization="Bearer " + access_token)
+            )
         self.assertEqual(res.status_code, 200)
 
         # Test to see if it exists, should return a 404
