@@ -8,8 +8,40 @@ class RegistrationView(MethodView):
     """This class registers a new user."""
 
     def post(self):
-        """Handle POST request for this view. Url ---> /auth/register"""
-
+        """
+            Register a new user
+            ---
+            tags:
+              - Users
+            parameters:
+              - in: body
+                name: body
+                required: true
+                type: string
+                description: This route registers a new user
+            responses:
+              200:
+                description: You successfully registered
+              201:
+                description: User registered successfully
+                schema:
+                  id: Register user
+                  properties:
+                    email:
+                      type: string
+                      default: angela.lehru@andela.com
+                    password:
+                      type: string
+                      default: 1234567
+                    response:
+                      type: string
+                      default: You registered successfully. Please log in.
+              500:
+                description: An error has occured
+              409:
+                description: User already exists. Please login.
+        """
+        """Handle POST request for this view. Url ---> /api/v1/auth/register"""
         # Query to see if the user already exists
         user = RecipeApp.query.filter_by(email=request.data['email']).first()
 
@@ -33,15 +65,14 @@ class RegistrationView(MethodView):
                 response = {
                     'message': str(e)
                 }
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 500
         else:
-            # There is an existing user. We don't want to register users twice
-            # Return a message to the user telling them that they they already exist
+            # There is an existing user.
             response = {
                 'message': 'User already exists. Please login.'
             }
 
-            return make_response(jsonify(response)), 201
+            return make_response(jsonify(response)), 409
 
 registration_view = RegistrationView.as_view('register_view')
 # Define the rule for the registration url --->  /auth/register
@@ -56,6 +87,52 @@ class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
 
     def post(self):
+        """
+            Log in a user
+            ---
+            tags:
+              - Users
+            parameters:
+              - in: body
+                name: body
+                required: true
+                type: string
+                description: This route logs in a user
+            responses:
+              200:
+                description: User logged in successfully
+              201:
+                description: You logged in successfully
+                schema:
+                  id: successful login
+                  properties:
+                    email:
+                      type: string
+                      default: angela.lehru@andela.com
+                    password:
+                      type: string
+                      default: 1234567
+                    response:
+                      type: string
+                      default: {'access_token': "eyJ0eXAiOiJKV1QiLCJhbGci", 'message': You logged in successfully}
+              401:
+                description: User does not exist.
+                schema:
+                  id: Invalid password or email
+                  properties:
+                    email:
+                      type: string
+                      default: angela.lehru1@andela.com
+                    password:
+                      type: string
+                      default: 9987794
+                    response:
+                      type: string
+                      default: Invalid email or password, Please try again
+              500:
+               description: An error has occured
+
+        """
         """Handle POST request for this view. Url ---> /auth/login"""
         try:
             # Get the user object using their email (unique to every user)
@@ -70,7 +147,7 @@ class LoginView(MethodView):
                         'message': 'You logged in successfully.',
                         'access_token': access_token.decode()
                     }
-                    return make_response(jsonify(response)), 200
+                    return make_response(jsonify(response)), 201
             else:
                 # User does not exist. Therefore, we return an error message
                 response = {
@@ -83,7 +160,6 @@ class LoginView(MethodView):
             response = {
                 'message': str(e)
             }
-            # Return a server error using the HTTP Error Code 500 (Internal Server Error)
             return make_response(jsonify(response)), 500
 
 # Define the API resource

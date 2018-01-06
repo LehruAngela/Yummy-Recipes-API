@@ -24,32 +24,150 @@ def auth(func):
     return user_login
 
 
-@recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST', 'GET'])
+@recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST'])
 @auth
-def recipes(user_id, category_id, **kwargs):
-    # retrieves/adds recipes from/to the database
-    if request.method == "POST":
-        recipe_name = str(request.data.get('recipe_name', ''))
-        ingredients = str(request.data.get('ingredients', ''))
-        directions = str(request.data.get('directions', ''))
+def create_recipes(user_id, category_id, **kwargs):
+    """
+        Creates a new recipe
+        ---
+        tags:
+          - Recipes
+        parameters:
+          - in: path
+            name: category_id
+            required: true
+            type: integer
+            description: Specify the category id
+          - in: body
+            name: body
+            required: true
+            type: string
+            description: This route creates a recipe
+        security:
+          - TokenHeader: []
+        responses:
+          200:
+            description: You successfully created a recipe
+          201:
+            description: Recipe successfully created
+            schema:
+              id: Create recipe
+              properties:
+                recipe_name:
+                  type: string
+                  default: Chicken
+                response:
+                  type: string
+                  default: {'category_id': 1, 'recipe_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+          409:
+            description: Recipe name already exists
+            schema:
+              id: Already existing recipe name being added
+              properties:
+                recipe_name:
+                  type: string
+                  default: {'category_id': 1, 'recipe_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+                response:
+                  type: string
+                  default: Recipe name already exists.
+        """
+    # adds recipes to the database
+    recipe = Recipe.query.filter_by(recipe_name=request.data['recipe_name']).first()
 
-        if recipe_name:
-            #recipe_name = recipe_name.title()
-            recipe = Recipe(recipe_name=recipe_name, user_id=user_id, category_id=category_id)
-            recipe.save()
-            response = jsonify({
-                'recipe_id': recipe.recipe_id,
-                'recipe_name': recipe.recipe_name,
-                'ingredients': recipe.ingredients,
-                'directions': recipe.directions,
-                'date_created': recipe.date_created,
-                'date_modified': recipe.date_modified,
-                'created_by' : user_id,
-                'category_id': recipe.category_id,
-            })
-            return make_response(response), 201
+    if not recipe:
+        if request.method == "POST":
+            recipe_name = str(request.data.get('recipe_name', ''))
+            ingredients = str(request.data.get('ingredients', ''))
+            directions = str(request.data.get('directions', ''))
 
+            if recipe_name:
+                #recipe_name = recipe_name.title()
+                recipe = Recipe(recipe_name=recipe_name, user_id=user_id, category_id=category_id)
+                recipe.save()
+                response = jsonify({
+                    'recipe_id': recipe.recipe_id,
+                    'recipe_name': recipe.recipe_name,
+                    'ingredients': recipe.ingredients,
+                    'directions': recipe.directions,
+                    'date_created': recipe.date_created,
+                    'date_modified': recipe.date_modified,
+                    'created_by' : user_id,
+                    'category_id': recipe.category_id,
+                })
+                return make_response(response), 201
     else:
+        # There is an existing recipe.
+        response = {
+            'message': 'Recipe already exists.'
+        }
+        return make_response(jsonify(response)), 409
+
+
+@recipe_api.route('/categories/<int:category_id>/recipes/', methods=['GET'])
+@auth
+def view_recipes(user_id, category_id, **kwargs):
+    """
+        Retrieves all created recipes by that user
+        ---
+        tags:
+          - Recipes
+
+        parameters:
+          - in: path
+            name: category_id
+            required: true
+            type: integer
+            description: Specify the category id
+          - in: query
+            name: q
+            required: false
+            type: string
+            description: This route retrieves all recipes of that name
+          - in: query
+            name: page
+            required: false
+            type: integer
+            description: This route retrieves all recipes of that page number
+          - in: query
+            name: per_page
+            required: false
+            type: integer
+            description: This route retrieves the specified number of recipes on a page
+
+        security:
+          - TokenHeader: []
+
+        responses:
+          200:
+            description: You successfully retrieved all recipes
+          201:
+            description: Recipes retrieved successfully
+            schema:
+              id: View recipes
+              properties:
+                recipe_name by q:
+                  type: string
+                  default: ?q=Chick
+                pagination:
+                  type: string
+                  default: ?page=1&per_page=1
+                response:
+                  type: string
+                  default: {'category_id': 1, 'recipe_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+          404:
+            description: Searching for a title that is not there or invalid
+            schema:
+              id: Invalid
+              properties:
+                recipe_name:
+                  type: string
+                  default: '6oo06'
+                response:
+                  type: string
+                  default: Recipe not found
+        """
+    # retrieves recipes from the database
+    if request.method == "GET":
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 5))
         q = str(request.args.get('q', '')).title()
@@ -79,9 +197,57 @@ def recipes(user_id, category_id, **kwargs):
                 }, 404
 
 
-@recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
+@recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET'])
 @auth
-def recipe_edit_and_delete(user_id, category_id, recipe_id, **kwargs):
+def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
+    """
+        Retrieves a single recipe using it's ID
+        ---
+        tags:
+          - Recipes
+
+        parameters:
+          - in: path
+            name: category_id
+            required: true
+            type: integer
+            description: Specify the category ID
+          - in: path
+            name: recipe_id
+            required: true
+            type: integer
+            description: Specify the recipe ID
+        security:
+          - TokenHeader: []
+        responses:
+          200:
+            description: You successfully retrieved a recipe using its ID
+          201:
+            description: Recipe retrieved successfully
+            schema:
+              id: View one recipe
+              properties:
+                category_id:
+                  type: integer
+                  default: 1
+                response:
+                  type: string
+                  default: {'category_id': 1, 'recipe_id': 1, 'recipe_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+          404:
+            description: Url doesn't exist. Please type existing url
+            schema:
+              id: Invalid ID
+              properties:
+                category_id:
+                  type: integer
+                  default: 2
+                recipe_id:
+                  type: integer
+                  default: 2
+                response:
+                  type: string
+                  default: Recipe not found
+        """
     # retrieve a recipe using it's ID
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:
@@ -89,14 +255,88 @@ def recipe_edit_and_delete(user_id, category_id, recipe_id, **kwargs):
         return {
             "message": "Url doesn't exist. Please type existing url"
             }, 404
+        # GET
+    response = jsonify({
+        'recipe_id': recipe.recipe_id,
+        'recipe_name': recipe.recipe_name,
+        'ingredients': recipe.ingredients,
+        'directions': recipe.directions,
+        'date_created': recipe.date_created,
+        'date_modified': recipe.date_modified
+    })
+    response.status_code = 200
+    return response
 
-    if request.method == 'DELETE':
-        recipe.delete()
+
+@recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['PUT'])
+@auth
+def edit_recipe(user_id, category_id, recipe_id, **kwargs):
+    """
+        Updates a recipe of a specified ID
+        ---
+        tags:
+          - Recipes
+        parameters:
+          - in: path
+            name: category_id
+            required: true
+            type: integer
+            description: Specify the category id
+          - in: path
+            name: recipe_id
+            required: true
+            type: string
+            description: Specify the recipe id
+          - in: body
+            name: body
+            required: true
+            type: string
+            description: This routes edits a category
+        security:
+          - TokenHeader: []
+        responses:
+          200:
+            description: You successfully retrieved a recipe using its ID
+          201:
+            description: Recipe edited successfully
+            schema:
+              id: Edit recipe
+              properties:
+                category_id:
+                  type: integer
+                  default: 1
+                recipe_id:
+                  type: integer
+                  default: 1
+                recipe_name:
+                  type: string
+                  default: Chicken
+                response:
+                  type: string
+                  default: {'category_id': 1, 'recipe_id': 1, 'recipe_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+          404:
+            description: Url doesn't exist. Please type existing url
+            schema:
+              id: Invalid ID
+              properties:
+                category_id:
+                  type: integer
+                  default: 2
+                recipe_id:
+                  type: integer
+                  default: 2
+                response:
+                  type: string
+                  default: No recipe found
+        """
+    # edit a recipe
+    recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
+    if not recipe:
+        # Raise an HTTPException with a 404 not found status code
         return {
-            "message": "recipe {} deleted successfully".format(recipe.recipe_id)
-            }, 200
-
-    elif request.method == 'PUT':
+            "message": "Url doesn't exist. Please type existing url"
+            }, 404
+    if request.method == 'PUT':
         recipe_name = str(request.data.get('recipe_name', ''))
         ingredients = str(request.data.get('ingredients', ''))
         directions = str(request.data.get('directions', ''))
@@ -118,15 +358,70 @@ def recipe_edit_and_delete(user_id, category_id, recipe_id, **kwargs):
             })
         response.status_code = 200
         return response
-    else:
-        # GET
-        response = jsonify({
-            'recipe_id': recipe.recipe_id,
-            'recipe_name': recipe.recipe_name,
-            'ingredients': recipe.ingredients,
-            'directions': recipe.directions,
-            'date_created': recipe.date_created,
-            'date_modified': recipe.date_modified
-        })
-        response.status_code = 200
-        return response
+
+
+@recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['DELETE'])
+@auth
+def delete_recipe(user_id, category_id, recipe_id, **kwargs):
+    """
+        Deletes a recipe of a specified ID
+        ---
+        tags:
+          - Recipes
+        parameters:
+          - in: path
+            name: category_id
+            required: true
+            type: integer
+            description: Specify the category id
+          - in: path
+            name: recipe_id
+            required: true
+            type: string
+            description: Specify the recipe id
+        security:
+          - TokenHeader: []
+        responses:
+          200:
+            description: You successfully retrieved a recipe using its ID
+          201:
+            description: Recipe created successfully
+            schema:
+              id: Delete recipe
+              properties:
+                category_id:
+                  type: integer
+                  default: 1
+                recipe_id:
+                  type: integer
+                  default: 1
+                response:
+                  type: string
+                  default: Recipe 1 deleted
+          404:
+            description: Url doesn't exist. Please type existing url
+            schema:
+               id: Invalid delete
+               properties:
+                 category_id:
+                   type: integer
+                   default: 2
+                 recipe_id:
+                   type: integer
+                   default: 2
+                 response:
+                   type: string
+                   default: Recipe not found
+        """
+    # delete a recipe
+    recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
+    if not recipe:
+        # Raise an HTTPException with a 404 not found status code
+        return {
+            "message": "Url doesn't exist. Please type existing url"
+            }, 404
+    if request.method == 'DELETE':
+        recipe.delete()
+        return {
+            "message": "recipe {} deleted successfully".format(recipe.recipe_id)
+            }, 200
