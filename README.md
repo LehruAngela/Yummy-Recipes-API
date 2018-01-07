@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/LehruAngela/yummy-recipes-api.png)](https://travis-ci.org/LehruAngela/yummy-recipes-api)
-[![Coverage Status](https://coveralls.io/repos/github/LehruAngela/yummy-recipes-api/badge.svg?branch=develop)](https://coveralls.io/github/LehruAngela/yummy-recipes-api?branch=develop)
+[![Coverage Status](https://coveralls.io/repos/github/LehruAngela/yummy-recipes-api/badge.svg?branch=input-validation)](https://coveralls.io/github/LehruAngela/yummy-recipes-api?branch=input-validation)
 
 ## Yummy-Recipes-API
 This is a Flask API of the Yummy-Recipes that handles:
