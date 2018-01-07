@@ -74,13 +74,6 @@ class RegistrationView(MethodView):
 
             return make_response(jsonify(response)), 409
 
-registration_view = RegistrationView.as_view('register_view')
-# Define the rule for the registration url --->  /auth/register
-# Then add the rule to the blueprint
-auth_blueprint.add_url_rule(
-    '/auth/register',
-    view_func=registration_view,
-    methods=['POST'])
 
 
 class LoginView(MethodView):
@@ -147,13 +140,13 @@ class LoginView(MethodView):
                         'message': 'You logged in successfully.',
                         'access_token': access_token.decode()
                     }
-                    return make_response(jsonify(response)), 201
+                    return make_response(jsonify(response)), 200
             else:
                 # User does not exist. Therefore, we return an error message
                 response = {
                     'message': 'Invalid email or password, Please try again'
                 }
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 403
 
         except Exception as e:
             # Create a response containing an string error message
@@ -162,9 +155,44 @@ class LoginView(MethodView):
             }
             return make_response(jsonify(response)), 500
 
+
+
+class LogoutView(MethodView):
+    def post(self):
+        """
+        Logout a user
+        ---
+        tags:
+          - Users
+
+        security:
+          - TokenHeader: []
+
+        responses:
+          200:
+            description: You've been logged out successfully
+        """
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+        if access_token:
+            # Attempt to decode the token and get the User ID
+            user_id = RecipeApp.decode_token(access_token)
+            if not isinstance(user_id, str):
+                # Handle the request if the user is authenticated"""
+                expired_token = ExpiredToken(token=access_token)
+                expired_token.save()
+                return jsonify({'message': 'Your have been logged out.'}),201
+            else:
+                message = user_id
+                response = {'message': message}
+                return make_response(jsonify(response)), 401
+        else:
+            return jsonify({'message': 'please provide a  valid token'})
+
 # Define the API resource
 registration_view = RegistrationView.as_view('registration_view')
 login_view = LoginView.as_view('login_view')
+logout_view = LogoutView.as_view('logout_view')
 
 # Define the rule for the registration url --->  /auth/register
 # Then add the rule to the blueprint
@@ -178,5 +206,13 @@ auth_blueprint.add_url_rule(
 auth_blueprint.add_url_rule(
     '/auth/login',
     view_func=login_view,
+    methods=['POST']
+)
+
+# Define the rule for the logout url --->  /auth/logout
+# Then add the rule to the blueprint
+auth_blueprint.add_url_rule(
+    '/auth/logout',
+    view_func=logout_view,
     methods=['POST']
 )

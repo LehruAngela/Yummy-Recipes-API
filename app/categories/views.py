@@ -197,8 +197,6 @@ def view_one_category(user_id, category_id, **kwargs):
           - TokenHeader: []
         responses:
           200:
-            description: You successfully retrieved a category using its ID
-          201:
             description: Category retrieved successfully
             schema:
               id: View one category
@@ -223,8 +221,7 @@ def view_one_category(user_id, category_id, **kwargs):
         """
     # retrieve a category using it's ID
     user = RecipeApp.query.filter_by(user_id=user_id).first()
-    category = user.categories.filter_by(category_id=category_id).first
-    recipes = user.recipes.filter_by(recipe_id=recipe_id).first()
+    category = user.categories.filter_by(category_id=category_id).first()
     if not category:
         # Raise an HTTPException with a 404 not found status code
         return {
@@ -239,7 +236,7 @@ def view_one_category(user_id, category_id, **kwargs):
             'date_modified': category.date_modified,
             'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True)
         })
-        response.status_code = 201
+        response.status_code = 200
         return response
 
 
