@@ -25,11 +25,15 @@ class RecipeApp(db.Model):
             cascade="all, delete-orphan",
             lazy='dynamic'
         )
+    security_question = db.Column(db.String(256))
+    security_answer = db.Column(db.String(256))
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, security_question, security_answer):
         """initialize"""
         self.email = email
         self.password = Bcrypt().generate_password_hash(password).decode()
+        self.security_question = security_question
+        self.security_answer = security_answer
 
     def password_is_valid(self, password):
         return Bcrypt().check_password_hash(self.password, password)
