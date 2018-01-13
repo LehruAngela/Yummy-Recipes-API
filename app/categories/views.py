@@ -3,7 +3,8 @@ from functools import wraps
 from flask import Blueprint, make_response, request, jsonify, url_for
 from app.models.category import Category
 from app.models.recipe import Recipe
-from app.models.recipeAuth import RecipeApp
+from app.models.recipeAuth import RecipeApp, ExpiredToken
+import validate
 
 def auth(func):
 
@@ -11,16 +12,20 @@ def auth(func):
     def user_login(*args, **kwargs):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
+        if auth_header is None:
+            response = {'message': 'No token provided. Please provide a valid token.'}
+            return make_response(jsonify(response)), 401
         access_token = auth_header.split(" ")[1]
 
-        if access_token:
+        if ExpiredToken.check_expired_token(access_token) == False:
             # Attempt to decode the token and get the User ID
             user_id = RecipeApp.decode_token(access_token)
             if not isinstance(user_id, str):
                 # Handle the request if the user is authenticated"""
                 return func(user_id, *args, **kwargs)
             return None
-        return None
+        response = {'message': 'Please login'}
+        return make_response(jsonify(response)), 401
     return user_login
 
 
@@ -76,23 +81,27 @@ def create_categories(user_id):
     if not category:
         if request.method == "POST":
             category_name = str(request.data.get('category_name', ''))
-            #if validate.validate_name(category_name) == True:
+            if category_name is None:
+                response = {'message': 'No content provided.'}
+                return make_response(jsonify(response)), 400
+            category_name.strip()
             if category_name:
-                category = Category(category_name=category_name, user_id=user_id)
-                category.save()
-                response = jsonify({
-                    'category_id': category.category_id,
-                    'category_name': category.category_name,
-                    'date_created': category.date_created,
-                    'date_modified': category.date_modified,
-                    'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True),
-                    'created_by' : user_id
-                    })
-                return make_response(response), 201
+                if validate.validate_name(category_name) == "True":
+                    category = Category(category_name=category_name, user_id=user_id)
+                    category.save()
+                    response = jsonify({
+                        'category_id': category.category_id,
+                        'category_name': category.category_name,
+                        'date_created': category.date_created,
+                        'date_modified': category.date_modified,
+                        'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True),
+                        'created_by' : user_id
+                        })
+                    return make_response(response), 201
+            response = {'message': 'Category name required.'}
+            return make_response(jsonify(response)), 422
     # There is an existing category.
-    response = {
-        'message': 'Category already exists.'
-    }
+    response = {'message': 'Category already exists.'}
     return make_response(jsonify(response)), 409
 
 
@@ -158,13 +167,13 @@ def view_categories(user_id):
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 5))
-        q = str(request.args.get('q', '')).title()
+        q = str(request.args.get('q', ''))
         #GET all the categories created by this user
-        #categories = Category.query.filter_by(user_id=user_id, category_name=q)
-        categories = Category.query.filter(Category.user_id==user_id).filter(Category.category_name.like('%'+q+'%')).paginate(page, per_page, False)
+        categories = Category.query.filter(Category.user_id==user_id).filter(Category.category_name.ilike('%'+q+'%')).paginate(page, per_page, False)
 
+        # if not categories:
+        #   return jsonify({'message': 'No category found'}), 404
         results = []
-
         for category in categories.items:
             obj = {
                 'category_id': category.category_id,
@@ -175,9 +184,11 @@ def view_categories(user_id):
                 'created_by' : user_id
             }
             results.append(obj)
-
+        if len(results) <= 0:
+          response = {'message': 'Page not found'}
+          return make_response(jsonify(response)), 422
         return make_response(jsonify(results)), 200
-
+           
 
 @category_api.route('/categories/<int:category_id>', methods=['GET'])
 @auth
@@ -236,7 +247,7 @@ def view_one_category(user_id, category_id, **kwargs):
             'date_modified': category.date_modified,
             'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True)
         })
-        response.status_code = 200
+        response.status_code = 201
         return response
 
 
@@ -308,7 +319,7 @@ def edit_category(user_id, category_id, **kwargs):
             'date_modified': category.date_modified,
             'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True)
         })
-        response.status_code = 200
+        response.status_code = 201
         return response
 
 
