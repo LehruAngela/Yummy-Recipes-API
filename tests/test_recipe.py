@@ -23,13 +23,15 @@ class TestRecipe(unittest.TestCase):
     def register_user(self):
         """Helper method to register a test user"""
         user = {'email': 'Gela@gela.com',
-                'password': '123'}
+                'password': '1234567',
+                'security_question': 'fav color',
+                'security_answer': 'black'}
         return self.client().post('/api-v1/auth/register', data=user)
 
     def login_user(self):
         """Helper method to login a test user"""
         user = {'email': 'Gela@gela.com',
-                'password': '123'}
+                'password': '1234567'}
         return self.client().post('/api-v1/auth/login', data=user)
 
     def test_create_recipe(self):
