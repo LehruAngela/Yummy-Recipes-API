@@ -22,13 +22,15 @@ class TestCategory(unittest.TestCase):
     def register_user(self):
         """Helper method to register a test user"""
         user = {'email': 'Gela@gela.com',
-                'password': '123'}
+                'password': '1234567',
+                'security_question': 'fav color',
+                'security_answer': 'black'}
         return self.client().post('/api-v1/auth/register', data=user)
 
     def login_user(self):
         """Helper method to login a test user"""
         user = {'email': 'Gela@gela.com',
-                'password': '123'}
+                'password': '1234567'}
         return self.client().post('/api-v1/auth/login', data=user)
 
     def test_create_category(self):
@@ -62,8 +64,7 @@ class TestCategory(unittest.TestCase):
         # get all the categories that belong to the test user by making a GET request
         res = self.client().get(
             '/api-v1/categories/',
-            headers=dict(Authorization="Bearer " + access_token),
-            )
+            headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertIn('Stews', str(res.data))
 
@@ -81,13 +82,12 @@ class TestCategory(unittest.TestCase):
         # assert that the category is created
         self.assertEqual(rv.status_code, 201)
         # get the response data in json format
-        # rm -- results = json.loads(rv.data.decode())
         result_in_json = json.loads(rv.data.decode('utf-8').replace("'", "\""))
         result = self.client().get(
             '/api-v1/categories/{}'.format(result_in_json['category_id']),
             headers=dict(Authorization="Bearer " + access_token),)
         # assert that the category is actually returned given its ID
-        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.status_code, 201)
         self.assertIn('Stews', str(result.data))
 
     def test_edit_category(self):
@@ -112,7 +112,7 @@ class TestCategory(unittest.TestCase):
             data={
                 'category_name': 'Soups and Sauces'
             })
-        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 201)
 
         #  we get the edited category to see if it is actually edited.
         results = self.client().get(
