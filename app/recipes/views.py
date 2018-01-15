@@ -34,8 +34,7 @@ def create_recipes(user_id, category_id, **kwargs):
     """Create recipes in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id).first()
     if not category:
-        response = {'message': 'Category doesnt exist.'}
-        return make_response(jsonify(response)), 404
+        return make_response(jsonify({'message': 'Category doesnt exist.'})), 404
     recipe = Recipe.query.filter(Recipe.user_id==user_id).filter(Recipe.category_id==category_id).filter_by(recipe_name=request.data['recipe_name']).first()
     if not recipe:
         if request.method == "POST":
@@ -55,8 +54,7 @@ def create_recipes(user_id, category_id, **kwargs):
                         'date_created': recipe.date_created,
                         'date_modified': recipe.date_modified,
                         'created_by' : user_id,
-                        'category_id': recipe.category_id,
-                    })
+                        'category_id': recipe.category_id})
                     return make_response(response), 201
             return make_response(jsonify({'message': 'Recipe name required.'})), 400
     return make_response(jsonify({'message': 'Recipe already exists.'})), 409
@@ -103,20 +101,16 @@ def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
     if not category:
         response = {'message': 'Category name doesnt exist.'}
         return make_response(jsonify(response)), 422
-    # retrieve a recipe using it's ID
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:
-        # Raise an HTTPException with a 404 not found status code
         return {"message": "No recipe found"}, 404
-        # GET
     response = jsonify({
         'recipe_id': recipe.recipe_id,
         'recipe_name': recipe.recipe_name,
         'ingredients': recipe.ingredients,
         'directions': recipe.directions,
         'date_created': recipe.date_created,
-        'date_modified': recipe.date_modified
-    })
+        'date_modified': recipe.date_modified})
     response.status_code = 200
     return response
 
@@ -129,11 +123,9 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
     if not category:
         response = {'message': 'Category name doesnt exist.'}
         return make_response(jsonify(response)), 422
-    # edit a recipe
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:
-        # Raise an HTTPException with a 404 not found status code
-        return {"message": "Url doesn't exist. Please type existing url"}, 404
+        return {"message": "Recipe not found"}, 404
     if request.method == 'PUT':
         recipe_name = str(request.data.get('recipe_name', ''))
         ingredients = str(request.data.get('ingredients', ''))
@@ -151,8 +143,7 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
             'date_created': recipe.date_created,
             'date_modified': recipe.date_modified,
             'created_by' : user_id,
-            'category_id': recipe.category_id,
-            })
+            'category_id': recipe.category_id})
         response.status_code = 200
         return response
 
