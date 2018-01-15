@@ -10,34 +10,32 @@ class RegistrationView(MethodView):
     """This class registers a new user."""
     @swag_from('/app/docs/register.yml')
     def post(self):
-        """Handle POST request for this view. Url ---> /api/v1/auth/register"""
-        if request.method == "POST":
-            user = RecipeApp.query.filter_by(email=request.data['email']).first()
-            if not user:
-                try:
-                    # Register the user
-                    email = request.data['email']
-                    password =  request.data['password']
-                    security_question = request.data['security_question']
-                    security_answer = request.data['security_answer']
-                    if not email or not password or not security_question or not security_answer:
-                        response = {'message': 'All fields are required'}
-                        return make_response(jsonify(response)), 400   
-                    if validate.validate_email(email) == "True":
-                        if validate.validate_password(password) == "True":
-                            user = RecipeApp(email=email, password=password, security_question=security_question, security_answer=security_answer)
-                            user.save()
-                            response = {'message': 'You registered successfully. Please log in.'}
-                            return make_response(jsonify(response)), 201
-                        response = {'message': 'Password is short. Enter a password longer than 6 characters'}
-                        return make_response(jsonify(response)), 400
-                    response = {'message': 'Invalid email! A valid email should in this format name@gmail.com' }
-                    return make_response(jsonify(response)), 401
-                except Exception as e:
+        user = RecipeApp.query.filter_by(email=request.data['email']).first()
+        if not user:
+            try:
+                # Register the user
+                email = request.data['email']
+                password =  request.data['password']
+                security_question = request.data['security_question']
+                security_answer = request.data['security_answer']
+                if not email or not password or not security_question or not security_answer:
                     response = {'message': 'All fields are required'}
+                    return make_response(jsonify(response)), 400   
+                if validate.validate_email(email) == "True":
+                    if validate.validate_password(password) == "True":
+                        user = RecipeApp(email=email, password=password, security_question=security_question, security_answer=security_answer)
+                        user.save()
+                        response = {'message': 'You registered successfully. Please log in.'}
+                        return make_response(jsonify(response)), 201
+                    response = {'message': 'Password is short. Enter a password longer than 6 characters'}
                     return make_response(jsonify(response)), 400
-            response = {'message': 'User already exists. Please login.'}
-            return make_response(jsonify(response)), 409
+                response = {'message': 'Invalid email! A valid email should in this format name@gmail.com' }
+                return make_response(jsonify(response)), 401
+            except Exception as e:
+                response = {'message': 'All fields are required'}
+                return make_response(jsonify(response)), 400
+        response = {'message': 'User already exists. Please login.'}
+        return make_response(jsonify(response)), 409
 
 
 class LoginView(MethodView):
