@@ -51,10 +51,8 @@ def create_recipes(user_id, category_id, **kwargs):
                         'recipe_name': recipe.recipe_name,
                         'ingredients': recipe.ingredients,
                         'directions': recipe.directions,
-                        'date_created': recipe.date_created,
-                        'date_modified': recipe.date_modified,
-                        'created_by' : user_id,
-                        'category_id': recipe.category_id})
+                        'date_created': recipe.date_created, 'date_modified': recipe.date_modified,
+                        'created_by' : user_id, 'category_id': recipe.category_id})
                     return make_response(response), 201
             return make_response(jsonify({'message': 'Recipe name required.'})), 400
     return make_response(jsonify({'message': 'Recipe already exists.'})), 409
@@ -82,10 +80,8 @@ def view_recipes(user_id, category_id, **kwargs):
                     'recipe_name': recipe.recipe_name,
                     'ingredients': recipe.ingredients,
                     'directions': recipe.directions,
-                    'date_created': recipe.date_created,
-                    'date_modified': recipe.date_modified,
-                    'created_by' : user_id,
-                    'category_id': recipe.category_id,
+                    'date_created': recipe.date_created, 'date_modified': recipe.date_modified,
+                    'created_by' : user_id, 'category_id': recipe.category_id,
                     }
                 results.append(obj)
         if results:
@@ -109,8 +105,7 @@ def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
         'recipe_name': recipe.recipe_name,
         'ingredients': recipe.ingredients,
         'directions': recipe.directions,
-        'date_created': recipe.date_created,
-        'date_modified': recipe.date_modified})
+        'date_created': recipe.date_created, 'date_modified': recipe.date_modified})
     response.status_code = 200
     return response
 
@@ -140,10 +135,8 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
             'recipe_name': recipe.recipe_name,
             'ingredients': recipe.ingredients,
             'directions': recipe.directions,
-            'date_created': recipe.date_created,
-            'date_modified': recipe.date_modified,
-            'created_by' : user_id,
-            'category_id': recipe.category_id})
+            'date_created': recipe.date_created, 'date_modified': recipe.date_modified,
+            'created_by' : user_id, 'category_id': recipe.category_id})
         response.status_code = 200
         return response
 
