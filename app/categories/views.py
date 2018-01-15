@@ -31,8 +31,7 @@ def auth(func):
 @category_api.route('/categories/', methods=['POST'])
 @auth
 def create_categories(user_id):
-    """adds categories to the database
-    Query to see if the category already exists"""
+    """Adds categories to the database"""
     category = Category.query.filter(Category.user_id==user_id).filter_by(category_name=request.data['category_name']).first()
 
     if not category:
@@ -65,17 +64,15 @@ def create_categories(user_id):
 @category_api.route('/categories/', methods=['GET'])
 @auth
 def view_categories(user_id):
-    """retrieves categories from the database"""
+    """Retrieves categories from the database"""
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 5))
         q = str(request.args.get('q', ''))
         #GET all the categories created by this user
         categories = Category.query.filter(Category.user_id==user_id).filter(Category.category_name.ilike('%'+q+'%')).paginate(page, per_page, False)
-
         if categories.total <= 0:
             return make_response(jsonify({'msg': 'no categories found'})), 404
-
         if categories.items:
             results = []
             for category in categories.items:
@@ -96,7 +93,7 @@ def view_categories(user_id):
 @category_api.route('/categories/<int:category_id>', methods=['GET'])
 @auth
 def view_one_category(user_id, category_id, **kwargs):
-    """retrieve a category using it's ID"""
+    """Retrieve a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
     category = user.categories.filter_by(category_id=category_id).first()
     if not category:
@@ -120,7 +117,7 @@ def view_one_category(user_id, category_id, **kwargs):
 @category_api.route('/categories/<int:category_id>', methods=['PUT'])
 @auth
 def edit_category(user_id, category_id, **kwargs):
-    """edit a category using it's ID"""
+    """Edit a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
     category = user.categories.filter_by(category_id=category_id).first()
     if not category:
@@ -147,7 +144,7 @@ def edit_category(user_id, category_id, **kwargs):
 @category_api.route('/categories/<int:category_id>', methods=['DELETE'])
 @auth
 def delete_category(user_id, category_id, **kwargs):
-    """delete a category using it's ID"""
+    """Delete a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
     category = user.categories.filter_by(category_id=category_id).first()
     if not category:

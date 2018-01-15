@@ -31,7 +31,7 @@ def auth(func):
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST'])
 @auth
 def create_recipes(user_id, category_id, **kwargs):
-    """create recipes. checks if category exists"""
+    """Create recipes in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id).first()
     if not category:
         response = {'message': 'Category doesnt exist.'}
@@ -65,7 +65,7 @@ def create_recipes(user_id, category_id, **kwargs):
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['GET'])
 @auth
 def view_recipes(user_id, category_id, **kwargs):
-    """view recipes. checks if category exists"""
+    """View recipes in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
@@ -98,7 +98,7 @@ def view_recipes(user_id, category_id, **kwargs):
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET'])
 @auth
 def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
-    """view one recipe. checks if category exists"""
+    """View one recipe in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
@@ -124,7 +124,7 @@ def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['PUT'])
 @auth
 def edit_recipe(user_id, category_id, recipe_id, **kwargs):
-    """edit recipe. checks if category exists"""
+    """Edit a recipe in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
@@ -160,7 +160,7 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['DELETE'])
 @auth
 def delete_recipe(user_id, category_id, recipe_id, **kwargs):
-    """delete recipe. checks if category exists"""
+    """Delete a recipe in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
