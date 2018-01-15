@@ -8,10 +8,9 @@ import validate
 
 
 def auth(func):
-
     @wraps(func)
     def user_login(*args, **kwargs):
-        # Get the access token from the header
+        """Get the access token from the header"""
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
             response = {'message': 'No token provided. Please provide a valid token.'}
@@ -39,15 +38,12 @@ def create_recipes(user_id, category_id, **kwargs):
         return make_response(jsonify(response)), 404
     # adds recipes to the database
     recipe = Recipe.query.filter(Recipe.user_id==user_id).filter(Recipe.category_id==category_id).filter_by(recipe_name=request.data['recipe_name']).first()
-
     if not recipe:
         if request.method == "POST":
             recipe_name = str(request.data.get('recipe_name', ''))
             ingredients = str(request.data.get('ingredients', ''))
             directions = str(request.data.get('directions', ''))
-
             recipe_name.strip()
-
             if recipe_name:
                 if validate.validate_name(recipe_name) == "True":
                     recipe = Recipe(recipe_name=recipe_name, user_id=user_id, category_id=category_id)
@@ -83,10 +79,8 @@ def view_recipes(user_id, category_id, **kwargs):
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 5))
         q = str(request.args.get('q', '')).title()
-
         # GET all the recipes under this category
         recipes = Recipe.query.filter(Recipe.user_id==user_id).filter(Recipe.category_id==category_id).filter(Recipe.recipe_name.like('%'+q+'%')).paginate(page, per_page)
-
         results = []
         if recipes:
             for recipe in recipes.items:
@@ -150,14 +144,10 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
         recipe_name = str(request.data.get('recipe_name', ''))
         ingredients = str(request.data.get('ingredients', ''))
         directions = str(request.data.get('directions', ''))
-    #
-    # recipe = Recipe.query.filter_by(recipe_name=request.data['recipe_name']).first()
-    # #checks if recipe exists
-    # if recipe != recipe_name:
+        #checks if recipe exists
         recipe.recipe_name = recipe_name
         recipe.ingredients = ingredients
         recipe.directions = directions
-
         recipe.save()
         response = jsonify({
             'recipe_id': recipe.recipe_id,

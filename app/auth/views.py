@@ -8,11 +8,10 @@ from flasgger import swag_from
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
-
     @swag_from('/app/docs/register.yml')
     def post(self):
-        """Handle POST request for this view. Url ---> /api/v1/auth/register"""
-        # Query to see if the user already exists
+        """Handle POST request for this view. Url ---> /api/v1/auth/register
+        Query to see if the user already exists"""
         user = RecipeApp.query.filter_by(email=request.data['email']).first()
 
         if not user:
@@ -46,11 +45,10 @@ class RegistrationView(MethodView):
             # There is an existing user.
             response = {'message': 'User already exists. Please login.'}
             return make_response(jsonify(response)), 409
-
+        
 
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
-
     @swag_from('/app/docs/login.yml')
     def post(self):
         """Handle POST request for this view. Url ---> /auth/login"""
@@ -62,7 +60,6 @@ class LoginView(MethodView):
             if not email or not password:
                 response = {'message': 'All fields are required'}
                 return make_response(jsonify(response)), 400
-
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(password):
               # Generate the access token. This will be used as the authorization header
@@ -89,7 +86,6 @@ class LoginView(MethodView):
 
 
 class LogoutView(MethodView):
-
     @swag_from('/app/docs/logout.yml')
     def post(self):
         auth_header = request.headers.get('Authorization')
