@@ -1,0 +1,45 @@
+Retrieves a single recipe using it's ID
+---
+tags:
+  - Recipes
+parameters:
+  - in: path
+    name: category_id
+    required: true
+    type: integer
+    description: Specify the category ID
+  - in: path
+    name: recipe_id
+    required: true
+    type: integer
+    description: Specify the recipe ID
+security:
+  - TokenHeader: []
+responses:
+  200:
+    description: You successfully retrieved a recipe using its ID
+  201:
+    description: Recipe retrieved successfully
+    schema:
+      id: View one recipe
+      properties:
+        category_id:
+          type: integer
+          default: 1
+        response:
+          type: string
+          default: {'category_id': 1, 'recipe_id': 1, 'recipe_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+  404:
+    description: Url doesn't exist. Please type existing url
+    schema:
+      id: Invalid ID
+      properties:
+        category_id:
+          type: integer
+          default: 2
+        recipe_id:
+          type: integer
+          default: 2
+        response:
+          type: string
+          default: Recipe not found

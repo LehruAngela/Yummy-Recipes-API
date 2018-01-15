@@ -1,0 +1,55 @@
+Retrieves all created recipes by that user
+---
+tags:
+  - Recipes
+parameters:
+  - in: path
+    name: category_id
+    required: true
+    type: integer
+    description: Specify the category id
+  - in: query
+    name: q
+    required: false
+    type: string
+    description: This route retrieves all recipes of that name
+  - in: query
+    name: page
+    required: false
+    type: integer
+    description: This route retrieves all recipes of that page number
+  - in: query
+    name: per_page
+    required: false
+    type: integer
+    description: This route retrieves the specified number of recipes on a page
+security:
+  - TokenHeader: []
+responses:
+  200:
+    description: You successfully retrieved all recipes
+  201:
+    description: Recipes retrieved successfully
+    schema:
+      id: View recipes
+      properties:
+        recipe_name by q:
+          type: string
+          default: ?q=Chick
+        pagination:
+          type: string
+          default: ?page=1&per_page=1
+        response:
+          type: string
+          default: {'category_id': 1, 'recipe_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+  404:
+    description: Searching for a title that is not there or invalid
+    schema:
+      id: Invalid
+      properties:
+        recipe_name:
+          type: string
+          default: '6oo06'
+        response:
+          type: string
+          default: Recipe not found

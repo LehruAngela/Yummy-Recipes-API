@@ -1,0 +1,42 @@
+Deletes a category of a specified ID
+---
+tags:
+  - Categories
+
+parameters:
+  - in: path
+    name: category_id
+    required: true
+    type: integer
+    description: Delete a category by specifying its ID
+
+security:
+  - TokenHeader: []
+
+responses:
+  200:
+    description: You successfully retrieved a category using its ID
+  201:
+    description: Category created successfully
+    schema:
+      id: Delete category
+      properties:
+        category_id:
+          default: 1
+        category_name:
+          type: string
+          default: Category 1 deleted
+        response:
+          type: string
+          default: {'category_id': 1, 'name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+  404:
+    description: Url doesn't exist. Please type existing url
+    schema:
+        id: Invalid delete
+        properties:
+          category_id:
+            type: integer
+            default: 2
+          response:
+            type: string
+            default: No category found to delete

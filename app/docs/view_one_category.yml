@@ -1,0 +1,35 @@
+Retrieves a single category using it's ID
+---
+tags:
+  - Categories
+parameters:
+  - in: path
+    name: category_id
+    required: true
+    type: integer
+    description: This route retrieves a category using its ID
+security:
+  - TokenHeader: []
+responses:
+  200:
+    description: Category retrieved successfully
+    schema:
+      id: View one category
+      properties:
+        category_id:
+          type: integer
+          default: 1
+        response:
+          type: string
+          default: {'category_id': 1, 'category_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+  404:
+    description: Url doesn't exist. Please type existing url
+    schema:
+      id: Invalid ID
+      properties:
+        category_id:
+          type: integer
+          default: 2
+        response:
+          type: string
+          default: No category found

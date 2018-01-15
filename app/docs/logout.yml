@@ -1,0 +1,11 @@
+Logout a user
+---
+tags:
+  - Users
+
+security:
+  - TokenHeader: []
+
+responses:
+  200:
+    description: You've been logged out successfully
