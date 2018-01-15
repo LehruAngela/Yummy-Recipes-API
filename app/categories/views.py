@@ -33,7 +33,6 @@ def auth(func):
 def create_categories(user_id):
     """Adds categories to the database"""
     category = Category.query.filter(Category.user_id==user_id).filter_by(category_name=request.data['category_name']).first()
-
     if not category:
         if request.method == "POST":
             category_name = str(request.data.get('category_name', ''))
@@ -48,8 +47,7 @@ def create_categories(user_id):
                     response = jsonify({
                         'category_id': category.category_id,
                         'category_name': category.category_name,
-                        'date_created': category.date_created,
-                        'date_modified': category.date_modified,
+                        'date_created': category.date_created, 'date_modified': category.date_modified,
                         'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True),
                         'created_by' : user_id
                         })
@@ -79,8 +77,7 @@ def view_categories(user_id):
                 obj = {
                     'category_id': category.category_id,
                     'category_name': category.category_name,
-                    'date_created': category.date_created,
-                    'date_modified': category.date_modified,
+                    'date_created': category.date_created, 'date_modified': category.date_modified,
                     'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True),
                     'created_by' : user_id
                 }
@@ -106,8 +103,7 @@ def view_one_category(user_id, category_id, **kwargs):
         response = jsonify({
             'category_id': category.category_id,
             'category_name': category.category_name,
-            'date_created': category.date_created,
-            'date_modified': category.date_modified,
+            'date_created': category.date_created, 'date_modified': category.date_modified,
             'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True)
         })
         response.status_code = 201
@@ -133,8 +129,7 @@ def edit_category(user_id, category_id, **kwargs):
         response = jsonify({
             'category_id': category.category_id,
             'category_name': category.category_name,
-            'date_created': category.date_created,
-            'date_modified': category.date_modified,
+            'date_created': category.date_created, 'date_modified': category.date_modified,
             'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True)
         })
         response.status_code = 201
