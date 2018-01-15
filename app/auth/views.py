@@ -4,44 +4,13 @@ from flask.views import MethodView
 from flask import Blueprint, make_response, request, jsonify
 from app.models.recipeAuth import RecipeApp, ExpiredToken
 from flask_bcrypt import Bcrypt
+from flasgger import swag_from
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
 
+    @swag_from('/app/docs/register.yml')
     def post(self):
-        """
-            Register a new user
-            ---
-            tags:
-              - Users
-            parameters:
-              - in: body
-                name: body
-                required: true
-                type: string
-                description: This route registers a new user
-            responses:
-              200:
-                description: You successfully registered
-              201:
-                description: User registered successfully
-                schema:
-                  id: Register user
-                  properties:
-                    email:
-                      type: string
-                      default: angela.lehru@andela.com
-                    password:
-                      type: string
-                      default: 1234567
-                    response:
-                      type: string
-                      default: You registered successfully. Please log in.
-              500:
-                description: An error has occured
-              409:
-                description: User already exists. Please login.
-        """
         """Handle POST request for this view. Url ---> /api/v1/auth/register"""
         # Query to see if the user already exists
         user = RecipeApp.query.filter_by(email=request.data['email']).first()
@@ -56,7 +25,7 @@ class RegistrationView(MethodView):
                 security_answer = request.data['security_answer']
                 if not email or not password or not security_question or not security_answer:
                     response = {'message': 'All fields are required'}
-                    return make_response(jsonify(response)), 400
+                    return make_response(jsonify(response)), 400   
                 if validate.validate_email(email) == "True":
                     if validate.validate_password(password) == "True":
                         user = RecipeApp(email=email, password=password, security_question=security_question, security_answer=security_answer)
@@ -70,7 +39,8 @@ class RegistrationView(MethodView):
                 return make_response(jsonify(response)), 401
             except Exception as e:
                 # An error occured, therefore return a string message containing the error
-                response = {'message': str(e)}
+                # response = {'message': str(e)}
+                response = {'message': 'All fields are required'}
                 return make_response(jsonify(response)), 400
         else:
             # There is an existing user.
@@ -81,67 +51,27 @@ class RegistrationView(MethodView):
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
 
+    @swag_from('/app/docs/login.yml')
     def post(self):
-        """
-            Log in a user
-            ---
-            tags:
-              - Users
-            parameters:
-              - in: body
-                name: body
-                required: true
-                type: string
-                description: This route logs in a user
-            responses:
-              200:
-                description: User logged in successfully
-              201:
-                description: You logged in successfully
-                schema:
-                  id: successful login
-                  properties:
-                    email:
-                      type: string
-                      default: angela.lehru@andela.com
-                    password:
-                      type: string
-                      default: 1234567
-                    response:
-                      type: string
-                      default: {'access_token': "eyJ0eXAiOiJKV1QiLCJhbGci", 'message': You logged in successfully}
-              401:
-                description: User does not exist.
-                schema:
-                  id: Invalid password or email
-                  properties:
-                    email:
-                      type: string
-                      default: angela.lehru1@andela.com
-                    password:
-                      type: string
-                      default: 9987794
-                    response:
-                      type: string
-                      default: Invalid email or password, Please try again
-              500:
-               description: An error has occured
-
-        """
         """Handle POST request for this view. Url ---> /auth/login"""
+        email = request.data['email']
+        password =  request.data['password']
         try:
             # Get the user object using their email (unique to every user)
-            user = RecipeApp.query.filter_by(email=request.data['email']).first()
+            user = RecipeApp.query.filter_by(email=email).first()
+            if not email or not password:
+                response = {'message': 'All fields are required'}
+                return make_response(jsonify(response)), 400
 
             # Try to authenticate the found user using their password
-            if user and user.password_is_valid(request.data['password']):
-                # Generate the access token. This will be used as the authorization header
+            if user and user.password_is_valid(password):
+              # Generate the access token. This will be used as the authorization header
                 access_token = user.generate_token(user.user_id)
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
                         'access_token': access_token.decode()
-                     }
+                      }
                     return make_response(jsonify(response)), 200
             else:
                 # User does not exist. Therefore, we return an error message
@@ -158,22 +88,10 @@ class LoginView(MethodView):
             return make_response(jsonify(response)), 500
 
 
-
 class LogoutView(MethodView):
+
+    @swag_from('/app/docs/logout.yml')
     def post(self):
-        """
-        Logout a user
-        ---
-        tags:
-          - Users
-
-        security:
-          - TokenHeader: []
-
-        responses:
-          200:
-            description: You've been logged out successfully
-        """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
         if access_token:
@@ -194,20 +112,6 @@ class LogoutView(MethodView):
 
 class ResetPasswordView(MethodView):
     def post(self):
-        """
-        Reset Password
-        ---
-        tags:
-          - Users
-        parameters:
-          - in: body
-            name: body
-            required: true
-            type: string
-        responses:
-          200:
-            description: You've reset your password successfully
-        """
         #register user
         email = request.data['email']
         new_password = request.data['new_password']
