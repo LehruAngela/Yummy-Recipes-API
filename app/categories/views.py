@@ -67,32 +67,30 @@ def create_categories(user_id):
 def view_categories(user_id):
     """retrieves categories from the database"""
     if request.method == "GET":
-    page = int(request.args.get('page', 1))
-    per_page = int(request.args.get('per_page', 5))
-    q = str(request.args.get('q', ''))
-    #GET all the categories created by this user
-    categories = Category.query.filter(Category.user_id==user_id).filter(Category.category_name.ilike('%'+q+'%')).paginate(page, per_page, False)
-    print(categories.total)
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 5))
+        q = str(request.args.get('q', ''))
+        #GET all the categories created by this user
+        categories = Category.query.filter(Category.user_id==user_id).filter(Category.category_name.ilike('%'+q+'%')).paginate(page, per_page, False)
 
-    if categories.total <= 0:
-        return make_response(jsonify({'msg': 'no categories found'})), 404
+        if categories.total <= 0:
+            return make_response(jsonify({'msg': 'no categories found'})), 404
 
-    if categories.items:
-        results = []
-        for category in categories.items:
-            obj = {
-                'category_id': category.category_id,
-                'category_name': category.category_name,
-                'date_created': category.date_created,
-                'date_modified': category.date_modified,
-                'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True),
-                'created_by' : user_id
-            }
-            results.append(obj)
-        return make_response(jsonify(results)), 200
-    else:
-        response = {'msg': 'Page not found'}
-        return make_response(jsonify(response)), 422
+        if categories.items:
+            results = []
+            for category in categories.items:
+                obj = {
+                    'category_id': category.category_id,
+                    'category_name': category.category_name,
+                    'date_created': category.date_created,
+                    'date_modified': category.date_modified,
+                    'recipes': url_for('recipe_api.create_recipes', category_id=category.category_id, _external=True),
+                    'created_by' : user_id
+                }
+                results.append(obj)
+            return make_response(jsonify(results)), 200
+        else:
+            return make_response(jsonify({'msg': 'Page not found'})), 422
     
 
 @category_api.route('/categories/<int:category_id>', methods=['GET'])

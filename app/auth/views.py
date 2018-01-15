@@ -10,8 +10,7 @@ class RegistrationView(MethodView):
     """This class registers a new user."""
     @swag_from('/app/docs/register.yml')
     def post(self):
-        """Handle POST request for this view. Url ---> /api/v1/auth/register
-        Query to see if the user already exists"""
+        """Handle POST request for this view. Url ---> /api/v1/auth/register. Query to see if the user already exists"""
         user = RecipeApp.query.filter_by(email=request.data['email']).first()
 
         if not user:
@@ -45,7 +44,7 @@ class RegistrationView(MethodView):
             # There is an existing user.
             response = {'message': 'User already exists. Please login.'}
             return make_response(jsonify(response)), 409
-        
+
 
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
@@ -67,21 +66,14 @@ class LoginView(MethodView):
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
-                        'access_token': access_token.decode()
-                      }
+                        'access_token': access_token.decode()}
                     return make_response(jsonify(response)), 200
-            else:
-                # User does not exist. Therefore, we return an error message
-                response = {
-                    'message': 'Invalid email or password, Please try again'
-                }
-                return make_response(jsonify(response)), 403
-
+            # User does not exist. Therefore, we return an error message
+            response = {'message': 'Invalid email or password, Please try again'}
+            return make_response(jsonify(response)), 403
         except Exception as e:
             # Create a response containing an string error message
-            response = {
-                'message': str(e)
-            }
+            response = {'message': str(e)}
             return make_response(jsonify(response)), 500
 
 

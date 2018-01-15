@@ -31,12 +31,11 @@ def auth(func):
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST'])
 @auth
 def create_recipes(user_id, category_id, **kwargs):
-    #checks if category exists
+    """create recipes. checks if category exists"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id).first()
     if not category:
         response = {'message': 'Category doesnt exist.'}
         return make_response(jsonify(response)), 404
-    # adds recipes to the database
     recipe = Recipe.query.filter(Recipe.user_id==user_id).filter(Recipe.category_id==category_id).filter_by(recipe_name=request.data['recipe_name']).first()
     if not recipe:
         if request.method == "POST":
@@ -59,22 +58,18 @@ def create_recipes(user_id, category_id, **kwargs):
                         'category_id': recipe.category_id,
                     })
                     return make_response(response), 201
-            response = {'message': 'Recipe name required.'}
-            return make_response(jsonify(response)), 400
-    # There is an existing recipe.
-    response = {'message': 'Recipe already exists.'}
-    return make_response(jsonify(response)), 409
+            return make_response(jsonify({'message': 'Recipe name required.'})), 400
+    return make_response(jsonify({'message': 'Recipe already exists.'})), 409
 
 
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['GET'])
 @auth
 def view_recipes(user_id, category_id, **kwargs):
-    # checks if category exists
+    """view recipes. checks if category exists"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
         return make_response(jsonify(response)), 422
-    # retrieves recipes from the database
     if request.method == "GET":
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 5))
@@ -97,14 +92,13 @@ def view_recipes(user_id, category_id, **kwargs):
                 results.append(obj)
         if results:
             return make_response(jsonify(results)), 200
-        response = {'message': 'No recipes found'}
-        return make_response(jsonify(response)), 422
+        return make_response(jsonify({'message': 'No recipes found'})), 422
 
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET'])
 @auth
 def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
-    #checks if category exists
+    """view one recipe. checks if category exists"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
@@ -130,7 +124,7 @@ def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['PUT'])
 @auth
 def edit_recipe(user_id, category_id, recipe_id, **kwargs):
-    #checks if category exists
+    """edit recipe. checks if category exists"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
@@ -166,7 +160,7 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['DELETE'])
 @auth
 def delete_recipe(user_id, category_id, recipe_id, **kwargs):
-    #checks if category exists
+    """delete recipe. checks if category exists"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
     if not category:
         response = {'message': 'Category name doesnt exist.'}
