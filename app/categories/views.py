@@ -75,7 +75,7 @@ def view_categories(user_id):
         if categories.items:
             results = []
             for category in categories.items:
-                obj = {'Categories': category.category_json()}
+                obj = category.category_json()
                 results.append(obj)
             return make_response(jsonify(results)), 200
         return make_response(jsonify({'msg': 'Page not found'})), 422
@@ -94,7 +94,7 @@ def view_one_category(user_id, category_id, **kwargs):
         }, 404
     if request.method == 'GET':
         # GET a category
-        response = jsonify({'Category': category.category_json()})
+        response = jsonify(category.category_json())
         response.status_code = 201
         return response
 
@@ -115,7 +115,7 @@ def edit_category(user_id, category_id, **kwargs):
         category_name = str(request.data.get('category_name', ''))
         category.category_name = category_name
         category.save()
-        response = jsonify({'Edited category': category.category_json()})
+        response = jsonify(category.category_json())
         response.status_code = 201
         return response
 

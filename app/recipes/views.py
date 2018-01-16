@@ -54,7 +54,7 @@ def view_recipes(user_id, category_id):
         results = []
         if recipes:
             for recipe in recipes.items:
-                obj = {'Recipes': recipe.recipe_json()}
+                obj = recipe.recipe_json()
                 results.append(obj)
         if results:
             return make_response(jsonify(results)), 200
@@ -73,7 +73,7 @@ def view_one_recipe(user_id, category_id, recipe_id):
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:
         return {"message": "No recipe found"}, 404
-    response = jsonify({'Recipe': recipe.recipe_json()})
+    response = jsonify(recipe.recipe_json())
     response.status_code = 200
     return response
 
@@ -99,7 +99,7 @@ def edit_recipe(user_id, category_id, recipe_id):
         recipe.ingredients = ingredients
         recipe.directions = directions
         recipe.save()
-        response = jsonify({'Edited recipe': recipe.recipe_json()})
+        response = jsonify(recipe.recipe_json())
         response.status_code = 200
         return response
 
