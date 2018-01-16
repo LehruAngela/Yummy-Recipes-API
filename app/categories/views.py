@@ -50,8 +50,7 @@ def create_categories(user_id):
                     category = Category(
                         category_name=category_name, user_id=user_id)
                     category.save()
-                    response = jsonify(
-                        {'Category created': category.category_json()})
+                    response = jsonify(category.category_json())
                     return make_response(response), 201
             response = {'message': 'Category name required.'}
             return make_response(jsonify(response)), 422

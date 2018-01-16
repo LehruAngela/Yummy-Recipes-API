@@ -17,8 +17,7 @@ def create_recipes(user_id, category_id):
         Category.category_id == category_id).first()
     if not category:
         return make_response(jsonify({'message': 'Category doesnt exist.'})), 404
-    recipe = Recipe.query.filter(Recipe.user_id == user_id).filter(
-        Recipe.category_id == category_id).filter_by(recipe_name=request.data['recipe_name']).first()
+    recipe = Recipe.query.filter(Recipe.user_id == user_id).filter(Recipe.category_id == category_id).filter_by(recipe_name=request.data['recipe_name']).first()
     if not recipe:
         if request.method == "POST":
             recipe_name = str(request.data.get('recipe_name', ''))
@@ -30,8 +29,7 @@ def create_recipes(user_id, category_id):
                     recipe = Recipe(recipe_name=recipe_name,
                                     user_id=user_id, category_id=category_id)
                     recipe.save()
-                    response = jsonify(
-                        {'Recipe created': recipe.recipe_json()})
+                    response = jsonify(recipe.recipe_json())
                     return make_response(response), 201
             return make_response(jsonify({'message': 'Recipe name required.'})), 400
     return make_response(jsonify({'message': 'Recipe already exists.'})), 409
@@ -51,8 +49,8 @@ def view_recipes(user_id, category_id):
         per_page = int(request.args.get('per_page', 5))
         q = str(request.args.get('q', '')).title()
         # GET all the recipes under this category
-        recipes = Recipe.query.filter(Recipe.user_id == user_id).filter(Recipe.category_id == category_id).filter(
-            Recipe.recipe_name.like('%' + q + '%')).paginate(page, per_page)
+        recipes = Recipe.query.filter(Recipe.user_id == user_id).filter(
+            Recipe.category_id == category_id).filter(Recipe.recipe_name.like('%' + q + '%')).paginate(page, per_page)
         results = []
         if recipes:
             for recipe in recipes.items:
@@ -123,4 +121,3 @@ def delete_recipe(user_id, category_id, recipe_id):
     if request.method == 'DELETE':
         recipe.delete()
         return {"message": "recipe {} deleted successfully".format(recipe.recipe_id)}, 200
-    

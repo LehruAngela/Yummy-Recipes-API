@@ -44,12 +44,15 @@ class TestRecipe(unittest.TestCase):
             '/api-v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
+        print('created category', category_res)
         category_id = json.loads(category_res.data.decode('utf-8').replace("'", "\""))
+        print ('fff', category_id)
         # ensure the request has an authorization header set with the access token in it
         res = self.client().post(
             '/api-v1/categories/{}/recipes/'.format(category_id['category_id']),
             headers=dict(Authorization="Bearer " + access_token),
             data=self.recipe)
+        print('created categoryyyyyy', res)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Chicken Stew'.title(), str(res.data))
 

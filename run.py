@@ -23,7 +23,7 @@ swag= Swagger(app,
    })
 @app.route("/")
 def main():
-    return redirect('/')
+    return redirect('/apidocs')
 
 
 if __name__ == '__main__':
