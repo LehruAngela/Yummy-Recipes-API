@@ -1,14 +1,16 @@
-from . import category_api
-from functools import wraps
 from flask import Blueprint, make_response, request, jsonify, url_for
+from functools import wraps
+
 from app.models.category import Category
 from app.models.recipe import Recipe
 from app.models.recipeAuth import RecipeApp, ExpiredToken
+from . import category_api
 import validate
 
-def auth(func):
+
+def login_required(func):
     @wraps(func)
-    def user_login(*args, **kwargs):
+    def auth(*args, **kwargs):
         """Get the access token from the header"""
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
@@ -22,14 +24,14 @@ def auth(func):
             if not isinstance(user_id, str):
                 # Handle the request if the user is authenticated"""
                 return func(user_id, *args, **kwargs)
-            return None
+            return jsonify ({'message':user_id}),401
         response = {'message': 'Please login'}
         return make_response(jsonify(response)), 401
-    return user_login
+    return auth
 
 
 @category_api.route('/categories/', methods=['POST'])
-@auth
+@login_required
 def create_categories(user_id):
     """Adds categories to the database"""
     category = Category.query.filter(Category.user_id==user_id).filter_by(category_name=request.data['category_name']).first()
@@ -60,7 +62,7 @@ def create_categories(user_id):
 
 
 @category_api.route('/categories/', methods=['GET'])
-@auth
+@login_required
 def view_categories(user_id):
     """Retrieves categories from the database"""
     if request.method == "GET":
@@ -83,12 +85,11 @@ def view_categories(user_id):
                 }
                 results.append(obj)
             return make_response(jsonify(results)), 200
-        else:
-            return make_response(jsonify({'msg': 'Page not found'})), 422
+        return make_response(jsonify({'msg': 'Page not found'})), 422
     
 
 @category_api.route('/categories/<int:category_id>', methods=['GET'])
-@auth
+@login_required
 def view_one_category(user_id, category_id, **kwargs):
     """Retrieve a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
@@ -96,7 +97,7 @@ def view_one_category(user_id, category_id, **kwargs):
     if not category:
         # Raise an HTTPException with a 404 not found status code
         return {
-        "message": "Url doesn't exist. Please type existing url"
+        "message": "No category found"
         }, 404
     if request.method == 'GET':
     # GET a category
@@ -111,7 +112,7 @@ def view_one_category(user_id, category_id, **kwargs):
 
 
 @category_api.route('/categories/<int:category_id>', methods=['PUT'])
-@auth
+@login_required
 def edit_category(user_id, category_id, **kwargs):
     """Edit a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
@@ -119,7 +120,7 @@ def edit_category(user_id, category_id, **kwargs):
     if not category:
         # Raise an HTTPException with a 404 not found status code
         return {
-        "message": "Url doesn't exist. Please type existing url"
+        "message": "No category found to edit"
         }, 404
     if request.method == 'PUT':
         # EDIT a category
@@ -137,7 +138,7 @@ def edit_category(user_id, category_id, **kwargs):
 
 
 @category_api.route('/categories/<int:category_id>', methods=['DELETE'])
-@auth
+@login_required
 def delete_category(user_id, category_id, **kwargs):
     """Delete a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
@@ -145,7 +146,7 @@ def delete_category(user_id, category_id, **kwargs):
     if not category:
         # Raise an HTTPException with a 404 not found status code
         return {
-        "message": "Url doesn't exist. Please type existing url"
+        "message": "No category found to delete"
         }, 404
     if request.method == 'DELETE':
         # DELETE a category

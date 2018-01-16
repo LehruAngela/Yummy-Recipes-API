@@ -1,4 +1,5 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
+
 from .recipeAuth import RecipeApp
 from app import db
 
@@ -17,14 +18,12 @@ class Category(db.Model):
     recipes = db.relationship(
         'Recipe', order_by='Recipe.recipe_id', cascade="all, delete-orphan")
 
-
     def __init__(self, category_name, user_id, category_id=None, recipe_name=None):
         """initialize"""
         self.category_name = category_name
         self.category_id = category_id
         self.recipe_name = recipe_name
         self.user_id = user_id
-
 
     def save(self):
         db.session.add(self)

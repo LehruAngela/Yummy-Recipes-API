@@ -1,4 +1,5 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
+
 from app import db
 from .category import Category
 from .recipeAuth import RecipeApp

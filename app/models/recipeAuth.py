@@ -1,10 +1,11 @@
 from sqlalchemy import Integer, ForeignKey, String, Column
 from flask_bcrypt import Bcrypt
 from flask import make_response, jsonify
-from app import db
-from instance.config import Config
-import jwt
 from datetime import datetime, timedelta
+import jwt
+
+from instance.config import Config
+from app import db
 
 config = Config()
 
@@ -48,7 +49,6 @@ class RecipeApp(db.Model):
 
     def generate_token(self, user_id):
         """ Generates the access token"""
-
         try:
             # set up a payload with an expiration time
             payload = {

@@ -1,35 +1,16 @@
-from . import recipe_api
 from flask import Blueprint, make_response, request, jsonify
+from functools import wraps
+
 from app.models.recipe import Recipe
 from app.models.recipeAuth import RecipeApp
 from app.models.category import Category
-from functools import wraps
+from app.categories.views import login_required
+from . import recipe_api
 import validate
 
 
-def auth(func):
-    @wraps(func)
-    def user_login(*args, **kwargs):
-        """Get the access token from the header"""
-        auth_header = request.headers.get('Authorization')
-        if auth_header is None:
-            response = {'message': 'No token provided. Please provide a valid token.'}
-            return make_response(jsonify(response)), 401
-        access_token = auth_header.split(" ")[1]
-
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = RecipeApp.decode_token(access_token)
-            if not isinstance(user_id, str):
-                # Handle the request if the user is authenticated"""
-                return func(user_id, *args, **kwargs)
-            return None
-        return None
-    return user_login
-
-
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST'])
-@auth
+@login_required
 def create_recipes(user_id, category_id, **kwargs):
     """Create recipes in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id).first()
@@ -59,7 +40,7 @@ def create_recipes(user_id, category_id, **kwargs):
 
 
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['GET'])
-@auth
+@login_required
 def view_recipes(user_id, category_id, **kwargs):
     """View recipes in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
@@ -90,7 +71,7 @@ def view_recipes(user_id, category_id, **kwargs):
 
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET'])
-@auth
+@login_required
 def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
     """View one recipe in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
@@ -111,7 +92,7 @@ def view_one_recipe(user_id, category_id, recipe_id, **kwargs):
 
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['PUT'])
-@auth
+@login_required
 def edit_recipe(user_id, category_id, recipe_id, **kwargs):
     """Edit a recipe in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
@@ -120,7 +101,7 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
         return make_response(jsonify(response)), 422
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:
-        return {"message": "Recipe not found"}, 404
+        return {"message": "No recipe found to edit"}, 404
     if request.method == 'PUT':
         recipe_name = str(request.data.get('recipe_name', ''))
         ingredients = str(request.data.get('ingredients', ''))
@@ -142,7 +123,7 @@ def edit_recipe(user_id, category_id, recipe_id, **kwargs):
 
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['DELETE'])
-@auth
+@login_required
 def delete_recipe(user_id, category_id, recipe_id, **kwargs):
     """Delete a recipe in an existing category"""
     category = Category.query.filter(Category.user_id==user_id).filter(Category.category_id==category_id)
@@ -153,7 +134,7 @@ def delete_recipe(user_id, category_id, recipe_id, **kwargs):
     recipe = Recipe.query.filter_by(recipe_id=recipe_id).first()
     if not recipe:
         # Raise an HTTPException with a 404 not found status code
-        return {"message": "Url doesn't exist. Please type existing url"}, 404
+        return {"message": "No recipe found to delete"}, 404
     if request.method == 'DELETE':
         recipe.delete()
         return {"message": "recipe {} deleted successfully".format(recipe.recipe_id)
