@@ -28,6 +28,17 @@ class Recipe(db.Model):
         self.category_id = category_id
         self.user_id = user_id
 
+    def recipe_json(self):
+        """This method jsonifies the recipe model"""
+        return {'recipe_id': self.recipe_id,
+                'recipe_name': self.recipe_name,
+                'ingredients': self.ingredients,
+                'directions': self.directions,
+                'date_created': self.date_created,
+                'date_modified': self.date_modified,
+                'created_by' : self.user_id, 
+                'category_id': self.category_id}
+
     def save(self):
         db.session.add(self)
         db.session.commit()
