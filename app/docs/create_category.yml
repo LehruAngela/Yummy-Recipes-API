@@ -1,0 +1,40 @@
+Creates a new category
+---
+tags:
+  - Categories
+
+parameters:
+  - in: body
+    name: body
+    required: true
+    type: string
+    description: This route creates a category
+
+security:
+  - TokenHeader: []
+
+responses:
+  200:
+    description: You successfully created a category
+  201:
+    description: Category successfully created
+    schema:
+      id: Create category
+      properties:
+        category_name:
+          type: string
+          default: Chicken
+        response:
+          type: string
+          default: {'category_id': 1, 'category_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+  409:
+    description: Category name already exists
+    schema:
+      id: Already existing category name being added
+      properties:
+        category_name:
+          type: string
+          default: {'category_id': 1, 'category_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+        response:
+          type: string
+          default: Category name already exists.

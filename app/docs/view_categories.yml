@@ -1,0 +1,53 @@
+Retrieves all created categories by that user
+---
+tags:
+  - Categories
+
+parameters:
+  - in: query
+    name: q
+    required: false
+    type: string
+    description: This route retrieves all categories of that name
+  - in: query
+    name: page
+    required: false
+    type: integer
+    description: This route retrieves all categories of that page number
+  - in: query
+    name: per_page
+    required: false
+    type: integer
+    description: This route retrieves the specified number of categories on a page
+
+security:
+  - TokenHeader: []
+
+responses:
+  200:
+    description: You successfully retrieved all categories
+  201:
+    description: Categories retrieved successfully
+    schema:
+      id: View categories
+      properties:
+        category_name by q:
+          type: string
+          default: ?q=Chick
+        pagination:
+          type: string
+          default: ?page=1&per_page=1
+        response:
+          type: string
+          default: {'category_id': 1, 'category_name': Chicken, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+  404:
+    description: Url doesn't exist. Please type existing url
+    schema:
+      id: Invalid ID
+      properties:
+        category_id:
+          type: integer
+          default: 2
+        response:
+          type: string
+          default: No category found

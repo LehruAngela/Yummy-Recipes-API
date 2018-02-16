@@ -1,0 +1,43 @@
+Log in a user
+---
+tags:
+  - Users
+parameters:
+  - in: body
+    name: body
+    required: true
+    type: string
+    description: This route logs in a user
+responses:
+  200:
+    description: User logged in successfully
+  201:
+    description: You logged in successfully
+    schema:
+      id: successful login
+      properties:
+        email:
+          type: string
+          default: angela.lehru@andela.com
+        password:
+          type: string
+          default: 1234567
+        response:
+          type: string
+          default: {'access_token': "eyJ0eXAiOiJKV1QiLCJhbGci", 'message': You logged in successfully}
+  401:
+    description: User does not exist.
+    schema:
+      id: Invalid password or email
+      properties:
+        email:
+          type: string
+          default: angela.lehru1@andela.com
+        password:
+          type: string
+          default: 9987794
+        response:
+          type: string
+          default: Invalid email or password, Please try again
+  500:
+    description: An error has occured
