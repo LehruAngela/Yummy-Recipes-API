@@ -1,0 +1,31 @@
+Register a new user
+---
+tags:
+  - Users
+parameters:
+  - in: body
+    name: body
+    required: true
+    type: string
+    description: This route registers a new user
+responses:
+  200:
+    description: You successfully registered
+  201:
+    description: User registered successfully
+    schema:
+      id: Register user
+      properties:
+        email:
+          type: string
+          default: angela.lehru@andela.com
+        password:
+          type: string
+          default: 1234567
+        response:
+          type: string
+          default: You registered successfully. Please log in.
+  500:
+    description: An error has occured
+  409:
+    description: User already exists. Please login.

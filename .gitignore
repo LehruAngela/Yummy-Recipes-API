@@ -1,1 +1,6 @@
 /path/to/*.pyc
+__pycache__/
+venv/
+.vscode/
+.DS_Store/
+.cache/
