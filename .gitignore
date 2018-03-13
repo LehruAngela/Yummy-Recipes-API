@@ -4,5 +4,4 @@ venv/
 .vscode/
 .cache/
 .env
-migrations/
 .DS_Store
