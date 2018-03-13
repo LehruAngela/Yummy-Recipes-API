@@ -1,5 +1,6 @@
 from flask import Blueprint, make_response, request, jsonify, url_for
 from functools import wraps
+from flasgger import swag_from
 
 from app.models.category import Category
 from app.models.recipe import Recipe
@@ -34,6 +35,7 @@ def login_required(func):
 
 @category_api.route('/categories/', methods=['POST'])
 @login_required
+@swag_from('/app/docs/create_category.yml')
 def create_categories(user_id):
     """Adds categories to the database"""
     category = Category.query.filter(Category.user_id == user_id).filter_by(
@@ -61,11 +63,12 @@ def create_categories(user_id):
 
 @category_api.route('/categories/', methods=['GET'])
 @login_required
+@swag_from('/app/docs/view_categories.yml')
 def view_categories(user_id):
     """Retrieves categories from the database"""
     if request.method == "GET":
         page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 5))
+        per_page = int(request.args.get('per_page', 3))
         q = str(request.args.get('q', ''))
         # GET all the categories created by this user
         categories = Category.query.filter(Category.user_id == user_id).filter(
@@ -77,12 +80,14 @@ def view_categories(user_id):
             for category in categories.items:
                 obj = category.category_json()
                 results.append(obj)
-            return make_response(jsonify(results)), 200
+            return ({'results':results, 'page':categories.page, 'total':categories.total, 'per_page':categories.per_page, 'next_page':categories.next_num}), 200
+            # return make_response(results), 200
         return make_response(jsonify({'msg': 'Page not found'})), 422
 
 
 @category_api.route('/categories/<int:category_id>', methods=['GET'])
 @login_required
+@swag_from('/app/docs/view_one_category.yml')
 def view_one_category(user_id, category_id, **kwargs):
     """Retrieve a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
@@ -101,6 +106,7 @@ def view_one_category(user_id, category_id, **kwargs):
 
 @category_api.route('/categories/<int:category_id>', methods=['PUT'])
 @login_required
+@swag_from('/app/docs/edit_category.yml')
 def edit_category(user_id, category_id, **kwargs):
     """Edit a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()
@@ -122,6 +128,7 @@ def edit_category(user_id, category_id, **kwargs):
 
 @category_api.route('/categories/<int:category_id>', methods=['DELETE'])
 @login_required
+@swag_from('/app/docs/delete_category.yml')
 def delete_category(user_id, category_id, **kwargs):
     """Delete a category using it's ID"""
     user = RecipeApp.query.filter_by(user_id=user_id).first()

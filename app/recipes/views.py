@@ -1,5 +1,6 @@
 from flask import Blueprint, make_response, request, jsonify
 from functools import wraps
+from flasgger import swag_from
 
 from app.models.recipe import Recipe
 from app.models.recipeAuth import RecipeApp
@@ -11,6 +12,7 @@ import validate
 
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['POST'])
 @login_required
+@swag_from('/app/docs/create_recipe.yml')
 def create_recipes(user_id, category_id):
     """Create recipes in an existing category"""
     category = Category.query.filter(Category.user_id == user_id).filter(
@@ -37,6 +39,7 @@ def create_recipes(user_id, category_id):
 
 @recipe_api.route('/categories/<int:category_id>/recipes/', methods=['GET'])
 @login_required
+@swag_from('/app/docs/view_recipes.yml')
 def view_recipes(user_id, category_id):
     """View recipes in an existing category"""
     category = Category.query.filter(Category.user_id == user_id).filter(
@@ -63,6 +66,7 @@ def view_recipes(user_id, category_id):
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['GET'])
 @login_required
+@swag_from('/app/docs/view_one_recipe.yml')
 def view_one_recipe(user_id, category_id, recipe_id):
     """View one recipe in an existing category"""
     category = Category.query.filter(Category.user_id == user_id).filter(
@@ -80,6 +84,7 @@ def view_one_recipe(user_id, category_id, recipe_id):
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['PUT'])
 @login_required
+@swag_from('/app/docs/edit_recipe.yml')
 def edit_recipe(user_id, category_id, recipe_id):
     """Edit a recipe in an existing category"""
     category = Category.query.filter(Category.user_id == user_id).filter(
@@ -106,6 +111,7 @@ def edit_recipe(user_id, category_id, recipe_id):
 
 @recipe_api.route('/categories/<int:category_id>/recipes/<int:recipe_id>', methods=['DELETE'])
 @login_required
+@swag_from('/app/docs/delete_recipe.yml')
 def delete_recipe(user_id, category_id, recipe_id):
     """Delete a recipe in an existing category"""
     category = Category.query.filter(Category.user_id == user_id).filter(

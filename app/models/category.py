@@ -34,7 +34,8 @@ class Category(db.Model):
                 'date_created': self.date_created,
                 'date_modified': self.date_modified,
                 'recipes': url_for('recipe_api.create_recipes', category_id=self.category_id, _external=True),
-                'created_by': self.user_id}
+                'created_by': self.user_id
+                }
 
     def save(self):
         db.session.add(self)
