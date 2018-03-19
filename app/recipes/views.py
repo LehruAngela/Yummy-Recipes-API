@@ -19,7 +19,7 @@ def create_recipes(user_id, category_id):
         Category.category_id == category_id).first()
     if not category:
         return make_response(jsonify({'message': 'Category doesnt exist.'})), 404
-    recipe = Recipe.query.filter(Recipe.user_id == user_id).filter(Recipe.category_id == category_id).filter_by(recipe_name=request.data['recipe_name']).first()
+    recipe = Recipe.query.filter(Recipe.user_id == user_id).filter_by(recipe_name=request.data['recipe_name']).first()
     if not recipe:
         if request.method == "POST":
             recipe_name = str(request.data.get('recipe_name', ''))
@@ -29,7 +29,7 @@ def create_recipes(user_id, category_id):
             if recipe_name:
                 if validate.validate_name(recipe_name) == "True":
                     recipe = Recipe(recipe_name=recipe_name,
-                                    user_id=user_id, category_id=category_id)
+                                    user_id=user_id, category_id=category_id, ingredients=ingredients, directions=directions)
                     recipe.save()
                     response = jsonify(recipe.recipe_json())
                     return make_response(response), 201
@@ -49,7 +49,7 @@ def view_recipes(user_id, category_id):
         return make_response(jsonify(response)), 422
     if request.method == "GET":
         page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 5))
+        per_page = int(request.args.get('per_page', 6))
         q = str(request.args.get('q', '')).title()
         # GET all the recipes under this category
         recipes = Recipe.query.filter(Recipe.user_id == user_id).filter(
@@ -60,7 +60,8 @@ def view_recipes(user_id, category_id):
                 obj = recipe.recipe_json()
                 results.append(obj)
         if results:
-            return make_response(jsonify(results)), 200
+            return ({'results':results, 'page':recipes.page, 'total':recipes.total, 'per_page':recipes.per_page, 'next_page':recipes.next_num}), 200
+            # return make_response(jsonify(results)), 200
         return make_response(jsonify({'message': 'No recipes found'})), 422
 
 

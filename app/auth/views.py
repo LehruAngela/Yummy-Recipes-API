@@ -30,32 +30,29 @@ class RegistrationView(MethodView):
     @swag_from('/app/docs/register.yml')
     def post(self):
         user = RecipeApp.query.filter_by(email=request.data['email']).first()
-        if not user:
-            try:
-                # Register the user
-                email = request.data['email']
-                password =  request.data['password']
-                confirm_password =  request.data['confirm_password']
-                if not email or not password or not confirm_password:
-                    response = {'message': 'All fields are required'}
-                    return make_response(jsonify(response)), 400   
-                if password == confirm_password:
-                    if validate.validate_email(email) == "True":
-                        if validate.validate_password(password) == "True":
-                            user = RecipeApp(email=email, password=password)
-                            user.save()
-                            response = {'message': 'You registered successfully. Please log in.'}
-                            return make_response(jsonify(response)), 201
-                        response = {'message': 'Password is short. Enter a password longer than 6 characters'}
-                        return make_response(jsonify(response)), 400
-                    response = {'message': 'Invalid email! A valid email should in this format name@gmail.com' }
-                    return make_response(jsonify(response)), 401
-            except Exception as e:
-                response = {'message': 'All fields are required'}
-                return make_response(jsonify(response)), 400
-        response = {'message': 'User already exists. Please login.'}
-        return make_response(jsonify(response)), 409
-
+        if user:
+            return make_response(jsonify({'message': 'User already exists. Please login or use another email.'})), 409
+        try:
+            # Register the user
+            email = request.data['email']
+            username = request.data['username']
+            password =  request.data['password']
+            confirm_password =  request.data['confirm_password']
+            if not email or not password or not confirm_password:
+                return make_response(jsonify({'message': 'All fields are required'})), 400   
+            if validate.validate_email(email) != "True":
+                return make_response(jsonify({'message': 'Invalid email! A valid email should in this format name@gmail.com' })), 401
+            if validate.validate_password(password) != "True":
+                return make_response(jsonify({'message': 'Password is short. Enter a password longer than 6 characters'})), 400
+            if password != confirm_password:
+                return make_response(jsonify({'message': 'Passwords do not match'})), 400
+            else:
+                user = RecipeApp(email=email, password=password, username=username)
+                user.save()
+                return make_response(jsonify({'message': 'You registered successfully.', 'username':username})), 201
+        except Exception as e:
+            return make_response(jsonify({'message': str(e)})), 400
+        
 
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
@@ -76,15 +73,13 @@ class LoginView(MethodView):
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
-                        'access_token': access_token.decode()}
+                        'access_token': access_token.decode(),
+                        'username':user.username}
                     return make_response(jsonify(response)), 200
-            
-            response = {'message': 'Invalid email or password, Please try again'}
-            return make_response(jsonify(response)), 403
+            return make_response(jsonify({'message': 'Invalid email or password, Please try again'})), 403
         except Exception as e:
             # Create a response containing an string error message
-            response = {'message': str(e)}
-            return make_response(jsonify(response)), 500
+            return make_response(jsonify({'message': str(e)})), 500
 
 
 class LogoutView(MethodView):
@@ -167,7 +162,8 @@ class SendEmailView(MethodView):
             subject = "Yummy Recipes Reset Password"
             recipients.append(email)
             msg = Message(subject, sender="Admin", recipients=recipients)
-            msg.html = "copy the token:\n \n<h3>"+str(access_token)+"</h3>"
+            styles = "background-color:blue; color:white; padding: 5px 10px; border-radius:3px; text-decoration: none;"
+            msg.html = f"Click the link to reset password:\n \n<h3><a href='http://localhost:3000/resetpassword?tk={access_token.decode()}' style='{styles}'>Reset Password</a></h3>"
             print(msg.html)
             with app.app_context():
                 

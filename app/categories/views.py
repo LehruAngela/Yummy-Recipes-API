@@ -68,7 +68,7 @@ def view_categories(user_id):
     """Retrieves categories from the database"""
     if request.method == "GET":
         page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 3))
+        per_page = int(request.args.get('per_page', 9))
         q = str(request.args.get('q', ''))
         # GET all the categories created by this user
         categories = Category.query.filter(Category.user_id == user_id).filter(
@@ -144,4 +144,11 @@ def delete_category(user_id, category_id, **kwargs):
         return {
             "message": "category {} deleted successfully".format(category.category_id)
         }, 200
+
+
+@category_api.route('/username', methods=['GET'])
+@login_required
+def get_username(user_id):
+    user = RecipeApp.query.filter_by(user_id=user_id).first()
+    return({'username': user.username})
         
