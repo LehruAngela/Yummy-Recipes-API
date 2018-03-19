@@ -23,9 +23,9 @@ class TestRecipe(unittest.TestCase):
     def register_user(self):
         """Helper method to register a test user"""
         user = {'email': 'Gela@gela.com',
+                'username': 'Gela',
                 'password': '1234567',
-                'security_question': 'fav color',
-                'security_answer': 'black'}
+                'confirm_password': '1234567'}
         return self.client().post('/api-v1/auth/register', data=user)
 
     def login_user(self):
