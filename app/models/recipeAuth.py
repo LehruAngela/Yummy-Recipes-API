@@ -17,6 +17,7 @@ class RecipeApp(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(256), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
+    username = db.Column(db.String(256), nullable=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
@@ -26,15 +27,12 @@ class RecipeApp(db.Model):
             cascade="all, delete-orphan",
             lazy='dynamic'
         )
-    security_question = db.Column(db.String(256))
-    security_answer = db.Column(db.String(256))
 
-    def __init__(self, email, password, security_question, security_answer):
+    def __init__(self, email, username, password):
         """initialize"""
         self.email = email
+        self.username = username
         self.password = Bcrypt().generate_password_hash(password).decode()
-        self.security_question = security_question
-        self.security_answer = security_answer
 
     def password_is_valid(self, password):
         return Bcrypt().check_password_hash(self.password, password)
