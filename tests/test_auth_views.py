@@ -9,6 +9,7 @@ class TestRecipeApp(unittest.TestCase):
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.user = {'email': 'angelalehru@gmail.com',
+                     'username': 'Gela',
                      'password': 'forgetfulangela',
                      'confirm_password': 'forgetfulangela'}
         
