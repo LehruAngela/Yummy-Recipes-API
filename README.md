@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/LehruAngela/yummy-recipes-api.svg?branch=input-validation)](https://travis-ci.org/LehruAngela/yummy-recipes-api)
+[![Build Status](https://travis-ci.org/LehruAngela/yummy-recipes-api.svg?branch=master)](https://travis-ci.org/LehruAngela/yummy-recipes-api)
 [![Coverage Status](https://coveralls.io/repos/github/LehruAngela/yummy-recipes-api/badge.svg?branch=input-validation)](https://coveralls.io/github/LehruAngela/yummy-recipes-api?branch=input-validation)
 <a href="https://codeclimate.com/github/LehruAngela/yummy-recipes-api/maintainability"><img src="https://api.codeclimate.com/v1/badges/7c19031b376098381b04/maintainability" /></a>
 
